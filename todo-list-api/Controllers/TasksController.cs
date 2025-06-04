@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using TodoListApi.Models;
 using TodoListApi.Services;
+using TodoListApi.DTOs;
 
 namespace TodoListApi.Controllers
 {
@@ -70,11 +71,6 @@ namespace TodoListApi.Controllers
 
             await _taskService.DeleteTaskAsync(id);
             return NoContent();
-        }
-
-        private bool TaskItemExists(int id)
-        {
-            return _taskService.GetAllTasksAsync().Result.Any(e => e.Id == id);
         }
     }
 }

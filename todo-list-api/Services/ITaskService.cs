@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using TodoListApi.Models;
 
-namespace TodoListApi.Services;
 public interface ITaskService
 {
     Task<IEnumerable<TaskItem>> GetAllTasksAsync();
