@@ -3,8 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using TodoListApi.Data;
 using TodoListApi.Models;
+using TodoListApi.Services;
 
 namespace TodoListApi.Controllers
 {
@@ -12,23 +12,24 @@ namespace TodoListApi.Controllers
     [ApiController]
     public class TasksController : ControllerBase
     {
-        private readonly TodoContext _context;
+        private readonly ITaskService _taskService;
 
-        public TasksController(TodoContext context)
+        public TasksController(ITaskService taskService)
         {
-            _context = context;
+            _taskService = taskService;
         }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<TaskItem>>> GetTasks()
         {
-            return await _context.Tasks.ToListAsync();
+            var tasks = await _taskService.GetAllTasksAsync();
+            return tasks.ToList();
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<TaskItem>> GetTaskById(int id)
         {
-            var taskItem = await _context.Tasks.FindAsync(id);
+            var taskItem = await _taskService.GetTaskByIdAsync(id); 
 
             if (taskItem == null)
             {
@@ -41,8 +42,7 @@ namespace TodoListApi.Controllers
         [HttpPost]
         public async Task<ActionResult<TaskItem>> AddTask(TaskItem taskItem)
         {
-            _context.Tasks.Add(taskItem);
-            await _context.SaveChangesAsync();
+            await _taskService.AddTaskAsync(taskItem);
 
             return CreatedAtAction(nameof(GetTaskById), new { id = taskItem.Id }, taskItem);
         }
@@ -54,24 +54,7 @@ namespace TodoListApi.Controllers
             {
                 return BadRequest();
             }
-
-            _context.Entry(taskItem).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!TaskItemExists(id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+            await _taskService.UpdateTaskAsync(id, taskItem);
 
             return NoContent();
         }
@@ -79,21 +62,19 @@ namespace TodoListApi.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteTask(int id)
         {
-            var taskItem = await _context.Tasks.FindAsync(id);
+            var taskItem = await _taskService.GetTaskByIdAsync(id);
             if (taskItem == null)
             {
                 return NotFound();
             }
 
-            _context.Tasks.Remove(taskItem);
-            await _context.SaveChangesAsync();
-
+            await _taskService.DeleteTaskAsync(id);
             return NoContent();
         }
 
         private bool TaskItemExists(int id)
         {
-            return _context.Tasks.Any(e => e.Id == id);
+            return _taskService.GetAllTasksAsync().Result.Any(e => e.Id == id);
         }
     }
 }
