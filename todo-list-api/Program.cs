@@ -4,10 +4,7 @@ using TodoListApi.Data;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
-using TodoListApi.DTOs;
-using TodoListApi.Services;
-using TodoListApi.Models;
-using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -35,5 +32,7 @@ app.MapTaskEndpoints();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.Logger.LogInformation("The app started");
 
 app.Run();

@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using TodoListApi.Data;
-using TodoListApi.Models;
+using TodoListApi.Domain;
 
-namespace TodoListApi.Services;
+namespace TodoListApi.Application.Services;
 public class TaskService : ITaskService
 {
     private readonly TodoContext _context;

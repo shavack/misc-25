@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace TodoListApi.DTOs
+namespace TodoListApi.Application
 {
     public class TaskItemDto
     {

@@ -1,11 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using TodoListApi.Models;
-using TodoListApi.Services;
-using TodoListApi.DTOs;
+using TodoListApi.Application.Services;
+using TodoListApi.Domain;
 
 namespace TodoListApi.Controllers
 {

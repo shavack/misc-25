@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using TodoListApi.Models;
+using TodoListApi.Domain;
+namespace TodoListApi.Application.Services;
 
 public interface ITaskService
 {

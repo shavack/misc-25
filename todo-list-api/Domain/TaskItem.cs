@@ -1,5 +1,5 @@
 
-namespace TodoListApi.Models
+namespace TodoListApi.Domain
 {
     public class TaskItem
     {

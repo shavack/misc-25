@@ -1,16 +1,37 @@
 using Microsoft.AspNetCore.Routing;
-using TodoListApi.DTOs;
+using TodoListApi.Application.Services;
+using TodoListApi.Application;
 using Microsoft.AspNetCore.Builder;
-using TodoListApi.Models;
+using TodoListApi.Domain;
 using Microsoft.AspNetCore.Http;
 
 public static class TaskEndpoints
 {
     public static IEndpointRouteBuilder MapTaskEndpoints(this IEndpointRouteBuilder app)
     {
-
-        app.MapPost("/tasks", async (TaskItemDto dto, ITaskService service) =>
+        var tasks = app.MapGroup("/tasks");
+        tasks.MapGet("/", async (ITaskService service) =>
         {
+            var taskItems = await service.GetAllTasksAsync();
+            return Results.Ok(taskItems);
+        });
+
+        tasks.MapGet("/{id}", async (int id, ITaskService service) =>
+        {
+            var taskItem = await service.GetTaskByIdAsync(id);
+            if (taskItem == null)
+            {
+                return Results.NotFound();
+            }
+            return Results.Ok(taskItem);
+        });
+
+        tasks.MapPost("/", async (TaskItemDto dto, ITaskService service) =>
+        {
+            if (string.IsNullOrWhiteSpace(dto.Title))
+            {
+                return Results.BadRequest("Title cannot be empty.");
+            }
             var taskItem = new TaskItem
             {
                 Title = dto.Title,
@@ -21,8 +42,13 @@ public static class TaskEndpoints
             return Results.Created($"/tasks/{created.Id}", created);
         });
 
-        app.MapPut("/tasks/{id}", async (int id, TaskItemDto dto, ITaskService service) =>
+        tasks.MapPut("/{id}", async (int id, TaskItemDto dto, ITaskService service) =>
         {
+            if (string.IsNullOrWhiteSpace(dto.Title))
+            {
+                return Results.BadRequest("Title cannot be empty.");
+            }
+
             var taskItem = new TaskItem
             {
                 Id = id,
@@ -34,6 +60,17 @@ public static class TaskEndpoints
             return Results.NoContent();
         });
 
+        tasks.MapDelete("/{id}", async (int id, ITaskService service) =>
+        {
+            var toBeDeleted = await service.GetTaskByIdAsync(id);
+            if (toBeDeleted == null)
+            {
+                return Results.NotFound();
+            }
+            await service.DeleteTaskAsync(id);
+            return Results.NoContent();
+        });
+        
         return app;
     }
 
