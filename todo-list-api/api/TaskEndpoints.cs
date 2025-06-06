@@ -1,9 +1,10 @@
 using Microsoft.AspNetCore.Routing;
-using TodoListApi.Application.Services;
-using TodoListApi.Application;
-using Microsoft.AspNetCore.Builder;
 using TodoListApi.Domain;
+using TodoListApi.Application.Services;
+using TodoListApi.Application.Dtos;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using AutoMapper;
 
 public static class TaskEndpoints
 {
@@ -26,35 +27,25 @@ public static class TaskEndpoints
             return Results.Ok(taskItem);
         });
 
-        tasks.MapPost("/", async (TaskItemDto dto, ITaskService service) =>
+        tasks.MapPost("/", async (TaskItemDto dto, ITaskService service, IMapper mapper) =>
         {
             if (string.IsNullOrWhiteSpace(dto.Title))
             {
                 return Results.BadRequest("Title cannot be empty.");
             }
-            var taskItem = new TaskItem
-            {
-                Title = dto.Title,
-                IsDone = dto.IsCompleted
-            };
-
+            var taskItem = mapper.Map<TaskItem>(dto);
             var created = await service.AddTaskAsync(taskItem);
             return Results.Created($"/tasks/{created.Id}", created);
         });
 
-        tasks.MapPut("/{id}", async (int id, TaskItemDto dto, ITaskService service) =>
+        tasks.MapPut("/{id}", async (int id, TaskItemDto dto, ITaskService service, IMapper mapper) =>
         {
             if (string.IsNullOrWhiteSpace(dto.Title))
             {
                 return Results.BadRequest("Title cannot be empty.");
             }
 
-            var taskItem = new TaskItem
-            {
-                Id = id,
-                Title = dto.Title,
-                IsDone = dto.IsCompleted
-            };
+            var taskItem = mapper.Map<TaskItem>(dto);
 
             await service.UpdateTaskAsync(id, taskItem);
             return Results.NoContent();
