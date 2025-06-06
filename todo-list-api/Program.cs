@@ -8,6 +8,9 @@ using Microsoft.Extensions.Logging;
 using TodoListApi.Application.Mapping;
 using Microsoft.Extensions.Configuration;
 using TodoListApi.Application.Services;
+using FluentValidation;
+using TodoListApi.Application.Dtos;
+using TodoListApi.Application.Validators;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,7 +29,7 @@ builder.Services.AddAutoMapper(typeof(TaskMappingProfile).Assembly);
 builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 // Add application services
 builder.Services.AddScoped<ITaskService, TaskService>();
-
+builder.Services.AddScoped<IValidator<TaskItemDto>, TaskItemValidator>();
 
 var app = builder.Build();
 
@@ -43,6 +46,8 @@ app.MapTaskEndpoints();
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.UseExceptionHandler("/error");
 
 app.Logger.LogInformation("The app started");
 

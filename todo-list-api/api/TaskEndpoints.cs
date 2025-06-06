@@ -5,6 +5,7 @@ using TodoListApi.Application.Dtos;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using AutoMapper;
+using FluentValidation;
 
 public static class TaskEndpoints
 {
@@ -27,23 +28,18 @@ public static class TaskEndpoints
             return Results.Ok(taskItem);
         });
 
-        tasks.MapPost("/", async (TaskItemDto dto, ITaskService service, IMapper mapper) =>
+        tasks.MapPost("/", async (TaskItemDto dto, ITaskService service, IMapper mapper, IValidator<TaskItemDto> validator) =>
         {
-            if (string.IsNullOrWhiteSpace(dto.Title))
-            {
-                return Results.BadRequest("Title cannot be empty.");
-            }
+            validator.ValidateAndThrow(dto);
+
             var taskItem = mapper.Map<TaskItem>(dto);
             var created = await service.AddTaskAsync(taskItem);
             return Results.Created($"/tasks/{created.Id}", created);
         });
 
-        tasks.MapPut("/{id}", async (int id, TaskItemDto dto, ITaskService service, IMapper mapper) =>
+        tasks.MapPut("/{id}", async (int id, TaskItemDto dto, ITaskService service, IMapper mapper, IValidator<TaskItemDto> validator) =>
         {
-            if (string.IsNullOrWhiteSpace(dto.Title))
-            {
-                return Results.BadRequest("Title cannot be empty.");
-            }
+            validator.ValidateAndThrow(dto);
 
             var taskItem = mapper.Map<TaskItem>(dto);
 
@@ -61,7 +57,12 @@ public static class TaskEndpoints
             await service.DeleteTaskAsync(id);
             return Results.NoContent();
         });
-        
+
+        app.MapGet("error", () =>
+        {
+            return Results.Problem("You did something wrong, boi");
+        });
+
         return app;
     }
 
