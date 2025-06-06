@@ -13,6 +13,7 @@ using TodoListApi.Application.Dtos;
 using TodoListApi.Application.Validators;
 using Microsoft.AspNetCore.Http;
 using System.Linq;
+using System;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -41,10 +42,6 @@ if (app.Environment.IsDevelopment() || app.Environment.IsStaging() || app.Enviro
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
-app.MapTaskEndpoints();
-//app.AddErrorHandling();
-
 app.Use(async (context, next) =>
     {
         try
@@ -58,9 +55,18 @@ app.Use(async (context, next) =>
             var errors = ex.Errors.Select(e => new { e.PropertyName, e.ErrorMessage });
             await context.Response.WriteAsJsonAsync(errors);
         }
+        catch (Exception)
+        {
+            // Inne wyjątki — opcjonalnie loguj lub przekaż dalej
+            context.Response.StatusCode = 500;
+            await context.Response.WriteAsync("Wewnętrzny błąd serwera");
+        }
     });
 
 // Configure the HTTP request pipeline.
+app.MapTaskEndpoints();
+//app.AddErrorHandling();
+
 app.UseAuthorization();
 
 app.MapControllers();
