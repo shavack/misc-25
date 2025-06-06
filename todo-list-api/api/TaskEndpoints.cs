@@ -31,12 +31,7 @@ public static class TaskEndpoints
 
         tasks.MapPost("/", async (TaskItemDto dto, ITaskService service, IMapper mapper, IValidator<TaskItemDto> validator) =>
         {
-            var validationResult = validator.Validate(dto);
-            if (!validationResult.IsValid)
-            {
-                var errors = validationResult.Errors.Select(e => new { e.PropertyName, e.ErrorMessage });
-                return Results.BadRequest(errors);
-            }
+            validator.ValidateAndThrow(dto);
 
             var taskItem = mapper.Map<TaskItem>(dto);
             var created = await service.AddTaskAsync(taskItem);
@@ -45,15 +40,9 @@ public static class TaskEndpoints
 
         tasks.MapPut("/{id}", async (int id, TaskItemDto dto, ITaskService service, IMapper mapper, IValidator<TaskItemDto> validator) =>
         {
-            var validationResult = validator.Validate(dto);
-            if (!validationResult.IsValid)
-            {
-                var errors = validationResult.Errors.Select(e => new { e.PropertyName, e.ErrorMessage });
-                return Results.BadRequest(errors);
-            }
+            validator.ValidateAndThrow(dto);
 
             var taskItem = mapper.Map<TaskItem>(dto);
-
             await service.UpdateTaskAsync(id, taskItem);
             return Results.NoContent();
         });

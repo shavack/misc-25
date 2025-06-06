@@ -11,6 +11,8 @@ using TodoListApi.Application.Services;
 using FluentValidation;
 using TodoListApi.Application.Dtos;
 using TodoListApi.Application.Validators;
+using Microsoft.AspNetCore.Http;
+using System.Linq;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -41,6 +43,22 @@ if (app.Environment.IsDevelopment() || app.Environment.IsStaging() || app.Enviro
 }
 
 app.MapTaskEndpoints();
+//app.AddErrorHandling();
+
+app.Use(async (context, next) =>
+    {
+        try
+        {
+            await next();
+        }
+        catch (ValidationException ex)
+        {
+            context.Response.StatusCode = StatusCodes.Status400BadRequest;
+            context.Response.ContentType = "application/json";
+            var errors = ex.Errors.Select(e => new { e.PropertyName, e.ErrorMessage });
+            await context.Response.WriteAsJsonAsync(errors);
+        }
+    });
 
 // Configure the HTTP request pipeline.
 app.UseAuthorization();
