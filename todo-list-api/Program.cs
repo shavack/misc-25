@@ -11,9 +11,7 @@ using TodoListApi.Application.Services;
 using FluentValidation;
 using TodoListApi.Application.Dtos;
 using TodoListApi.Application.Validators;
-using Microsoft.AspNetCore.Http;
-using System.Linq;
-using System;
+using TodoListApi.Api;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -42,26 +40,8 @@ if (app.Environment.IsDevelopment() || app.Environment.IsStaging() || app.Enviro
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-app.Use(async (context, next) =>
-    {
-        try
-        {
-            await next();
-        }
-        catch (ValidationException ex)
-        {
-            context.Response.StatusCode = StatusCodes.Status400BadRequest;
-            context.Response.ContentType = "application/json";
-            var errors = ex.Errors.Select(e => new { e.PropertyName, e.ErrorMessage });
-            await context.Response.WriteAsJsonAsync(errors);
-        }
-        catch (Exception)
-        {
-            // Inne wyjątki — opcjonalnie loguj lub przekaż dalej
-            context.Response.StatusCode = 500;
-            await context.Response.WriteAsync("Wewnętrzny błąd serwera");
-        }
-    });
+
+app.UseMiddleware<ErrorHandlingMiddleware>();
 
 // Configure the HTTP request pipeline.
 app.MapTaskEndpoints();
@@ -70,8 +50,6 @@ app.MapTaskEndpoints();
 app.UseAuthorization();
 
 app.MapControllers();
-
-app.UseExceptionHandler("/error");
 
 app.Logger.LogInformation("The app started");
 
