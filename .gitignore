@@ -1,6 +1,6 @@
 bin/
 obj/
 notes/dotnet-notes.md
-app.db
-app.db-wal
-app.db-shm
+*.db
+*.db-wal
+*.db-shm
