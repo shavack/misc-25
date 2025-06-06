@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using AutoMapper;
 using FluentValidation;
+using System.Linq;
 
 public static class TaskEndpoints
 {
@@ -30,7 +31,12 @@ public static class TaskEndpoints
 
         tasks.MapPost("/", async (TaskItemDto dto, ITaskService service, IMapper mapper, IValidator<TaskItemDto> validator) =>
         {
-            validator.ValidateAndThrow(dto);
+            var validationResult = validator.Validate(dto);
+            if (!validationResult.IsValid)
+            {
+                var errors = validationResult.Errors.Select(e => new { e.PropertyName, e.ErrorMessage });
+                return Results.BadRequest(errors);
+            }
 
             var taskItem = mapper.Map<TaskItem>(dto);
             var created = await service.AddTaskAsync(taskItem);
@@ -39,7 +45,12 @@ public static class TaskEndpoints
 
         tasks.MapPut("/{id}", async (int id, TaskItemDto dto, ITaskService service, IMapper mapper, IValidator<TaskItemDto> validator) =>
         {
-            validator.ValidateAndThrow(dto);
+            var validationResult = validator.Validate(dto);
+            if (!validationResult.IsValid)
+            {
+                var errors = validationResult.Errors.Select(e => new { e.PropertyName, e.ErrorMessage });
+                return Results.BadRequest(errors);
+            }
 
             var taskItem = mapper.Map<TaskItem>(dto);
 
