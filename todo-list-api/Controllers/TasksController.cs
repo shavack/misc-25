@@ -7,7 +7,7 @@ using TodoListApi.Domain;
 
 namespace TodoListApi.Controllers
 {
-    [Route("tasks")]
+    [Route("taskscontroller")]
     [ApiController]
     public class TasksController : ControllerBase
     {

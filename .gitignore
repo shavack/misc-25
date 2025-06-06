@@ -1,3 +1,4 @@
 bin/
 obj/
 notes/dotnet-notes.md
+app.db

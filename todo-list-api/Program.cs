@@ -6,18 +6,27 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using TodoListApi.Application.Mapping;
+using Microsoft.Extensions.Configuration;
+using TodoListApi.Application.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddDbContext<TodoContext>(options =>
-    options.UseInMemoryDatabase("TodoListDb"));
+//builder.Services.AddDbContext<AppDbContext>(options =>
+  //  options.UseInMemoryDatabase("AppDbContext"));
 builder.Services.AddControllers();
 
 // Add Swagger services
-builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddEndpointsApiExplorer();
+// Add AutoMapper
 builder.Services.AddAutoMapper(typeof(TaskMappingProfile).Assembly);
+// Add db context
+builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+// Add application services
+builder.Services.AddScoped<ITaskService, TaskService>();
+
 
 var app = builder.Build();
 

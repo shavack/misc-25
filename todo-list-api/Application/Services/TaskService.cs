@@ -8,9 +8,9 @@ using TodoListApi.Domain;
 namespace TodoListApi.Application.Services;
 public class TaskService : ITaskService
 {
-    private readonly TodoContext _context;
+    private readonly AppDbContext _context;
 
-    public TaskService(TodoContext context)
+    public TaskService(AppDbContext context)
     {
         _context = context;
     }

@@ -1,11 +1,12 @@
 using Microsoft.EntityFrameworkCore;
 using TodoListApi.Domain;
+
 namespace TodoListApi.Data
 {
-    public class TodoContext : DbContext
+    public class AppDbContext : DbContext
     {
-        public TodoContext(DbContextOptions<TodoContext> options) : base(options) { }
-
+        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
         public DbSet<TaskItem> Tasks { get; set; }
+
     }
 }
