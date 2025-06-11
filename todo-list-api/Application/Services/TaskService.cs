@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using TodoListApi.Data;
@@ -15,9 +16,14 @@ public class TaskService : ITaskService
         _context = context;
     }
 
-    public async Task<IEnumerable<TaskItem>> GetAllTasksAsync()
+    public async Task<IEnumerable<TaskItem>> GetAllTasksAsync(int page = 1, int pageSize = 10)
     {
-        return await _context.Tasks.ToListAsync();
+        if (page < 1) page = 1;
+        if (pageSize < 1) pageSize = 10;
+        return await _context.Tasks
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
     }
 
     public async Task<TaskItem> GetTaskByIdAsync(int id)

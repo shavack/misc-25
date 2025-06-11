@@ -6,16 +6,15 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using AutoMapper;
 using FluentValidation;
-using System.Linq;
 
 public static class TaskEndpoints
 {
     public static IEndpointRouteBuilder MapTaskEndpoints(this IEndpointRouteBuilder app)
     {
         var tasks = app.MapGroup("/tasks");
-        tasks.MapGet("/", async (ITaskService service) =>
+        tasks.MapGet("/", async (ITaskService service, int page = 1, int pageSize = 10) =>
         {
-            var taskItems = await service.GetAllTasksAsync();
+            var taskItems = await service.GetAllTasksAsync(page, pageSize);
             return Results.Ok(taskItems);
         });
 
