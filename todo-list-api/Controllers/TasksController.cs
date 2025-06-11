@@ -1,7 +1,10 @@
+using FluentValidation;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using TodoListApi.Application.Dtos;
 using TodoListApi.Application.Services;
 using TodoListApi.Domain;
 
@@ -19,16 +22,10 @@ namespace TodoListApi.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<TaskItem>>> GetTasks(int page = 1, int pageSize = 10, string sort = "")
+        public async Task<ActionResult<IEnumerable<TaskItem>>> GetTasks([AsParameters] TaskQueryParams taskQueryParams, IValidator<TaskQueryParams> validator)
         {
-            if (page < 1) page = 1;
-            if (pageSize < 1) pageSize = 10;
-            if (string.IsNullOrEmpty(sort)) sort = "asc";
-            if (sort != "asc" && sort != "desc")
-            {
-                return BadRequest("Sort parameter must be 'asc' or 'desc'.");
-            }
-            var tasks = await _taskService.GetAllTasksAsync(page, pageSize, sort);
+            validator.ValidateAndThrow(taskQueryParams);
+            var tasks = await _taskService.GetAllTasksAsync(taskQueryParams.Page, taskQueryParams.PageSize, taskQueryParams.Sort, taskQueryParams.IsCompleted);
             return tasks.ToList();
         }
 

@@ -16,7 +16,7 @@ public static class TaskEndpoints
         tasks.MapGet("/", async (ITaskService service, [AsParameters] TaskQueryParams taskQueryParams, IValidator<TaskQueryParams> validator) =>
         {
             validator.ValidateAndThrow(taskQueryParams);
-            var taskItems = await service.GetAllTasksAsync(taskQueryParams.Page, taskQueryParams.PageSize, taskQueryParams.Sort);
+            var taskItems = await service.GetAllTasksAsync(taskQueryParams.Page, taskQueryParams.PageSize, taskQueryParams.Sort, taskQueryParams.IsCompleted);
             return Results.Ok(taskItems);
         });
 

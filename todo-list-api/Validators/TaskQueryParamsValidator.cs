@@ -15,5 +15,10 @@ public class TaskQueryParamsValidator : AbstractValidator<TaskQueryParams>
             .Must(value => value == "asc" || value == "desc")
             .When(x => !string.IsNullOrEmpty(x.Sort))
             .WithMessage("Sort must be either 'asc' or 'desc'.");
+
+        RuleFor(x => x.IsCompleted)
+            .Must(value => value == true || value == false)
+            .When(x => x.IsCompleted.HasValue)
+            .WithMessage("IsCompleted must be either true or false.");
     }
 }

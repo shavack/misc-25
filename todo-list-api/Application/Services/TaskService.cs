@@ -16,7 +16,7 @@ public class TaskService : ITaskService
         _context = context;
     }
 
-    public async Task<IEnumerable<TaskItem>> GetAllTasksAsync(int? page = 1, int? pageSize = 10, string sort = "")
+    public async Task<IEnumerable<TaskItem>> GetAllTasksAsync(int? page = 1, int? pageSize = 10, string sort = "", bool? isCompleted = false)
     {
         if (page is null or < 1) page = 1;
         if (pageSize is null or < 1) pageSize = 10;
@@ -28,6 +28,10 @@ public class TaskService : ITaskService
         else if (sort == "desc")
         {
             result = result.OrderByDescending(t => t.Title);
+        }
+        if( isCompleted.HasValue)
+        {
+            result = result.Where(t => t.IsCompleted == isCompleted.Value);
         }
         result = result.Skip((int)((page - 1) * pageSize)).Take(pageSize.Value);
         return await result.ToListAsync();
