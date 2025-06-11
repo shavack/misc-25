@@ -19,9 +19,9 @@ namespace TodoListApi.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<TaskItem>>> GetTasks(int page = 1, int pageSize = 10)
+        public async Task<ActionResult<IEnumerable<TaskItem>>> GetTasks(int page = 1, int pageSize = 10, string sort = "")
         {
-            var tasks = await _taskService.GetAllTasksAsync(page, pageSize);
+            var tasks = await _taskService.GetAllTasksAsync(page, pageSize, sort);
             return tasks.ToList();
         }
 

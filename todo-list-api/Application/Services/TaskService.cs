@@ -16,14 +16,21 @@ public class TaskService : ITaskService
         _context = context;
     }
 
-    public async Task<IEnumerable<TaskItem>> GetAllTasksAsync(int page = 1, int pageSize = 10)
+    public async Task<IEnumerable<TaskItem>> GetAllTasksAsync(int page = 1, int pageSize = 10, string sort = "")
     {
         if (page < 1) page = 1;
         if (pageSize < 1) pageSize = 10;
-        return await _context.Tasks
-            .Skip((page - 1) * pageSize)
-            .Take(pageSize)
-            .ToListAsync();
+        var result = _context.Tasks.AsQueryable();
+        if (sort == "asc")
+        {
+            result = result.OrderBy(t => t.Title);
+        }
+        else if (sort == "desc")
+        {
+            result = result.OrderByDescending(t => t.Title);
+        }
+        result = result.Skip((page - 1) * pageSize).Take(pageSize);
+        return await result.ToListAsync();
     }
 
     public async Task<TaskItem> GetTaskByIdAsync(int id)
