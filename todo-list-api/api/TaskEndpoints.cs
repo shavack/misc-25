@@ -14,6 +14,13 @@ public static class TaskEndpoints
         var tasks = app.MapGroup("/tasks");
         tasks.MapGet("/", async (ITaskService service, int page = 1, int pageSize = 10, string sort = "") =>
         {
+            if (page < 1) page = 1;
+            if (pageSize < 1) pageSize = 10;
+            if (string.IsNullOrEmpty(sort)) sort = "asc";
+            if (sort != "asc" && sort != "desc")
+            {
+                return Results.BadRequest("Sort parameter must be 'asc' or 'desc'.");
+            }
             var taskItems = await service.GetAllTasksAsync(page, pageSize, sort);
             return Results.Ok(taskItems);
         });

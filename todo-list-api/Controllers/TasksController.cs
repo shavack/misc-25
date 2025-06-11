@@ -21,6 +21,13 @@ namespace TodoListApi.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<TaskItem>>> GetTasks(int page = 1, int pageSize = 10, string sort = "")
         {
+            if (page < 1) page = 1;
+            if (pageSize < 1) pageSize = 10;
+            if (string.IsNullOrEmpty(sort)) sort = "asc";
+            if (sort != "asc" && sort != "desc")
+            {
+                return BadRequest("Sort parameter must be 'asc' or 'desc'.");
+            }
             var tasks = await _taskService.GetAllTasksAsync(page, pageSize, sort);
             return tasks.ToList();
         }
