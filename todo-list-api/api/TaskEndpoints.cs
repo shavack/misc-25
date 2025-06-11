@@ -6,22 +6,17 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using AutoMapper;
 using FluentValidation;
+using Microsoft.AspNetCore.Mvc;
 
 public static class TaskEndpoints
 {
     public static IEndpointRouteBuilder MapTaskEndpoints(this IEndpointRouteBuilder app)
     {
         var tasks = app.MapGroup("/tasks");
-        tasks.MapGet("/", async (ITaskService service, int page = 1, int pageSize = 10, string sort = "") =>
+        tasks.MapGet("/", async (ITaskService service, [AsParameters] TaskQueryParams taskQueryParams, IValidator<TaskQueryParams> validator) =>
         {
-            if (page < 1) page = 1;
-            if (pageSize < 1) pageSize = 10;
-            if (string.IsNullOrEmpty(sort)) sort = "asc";
-            if (sort != "asc" && sort != "desc")
-            {
-                return Results.BadRequest("Sort parameter must be 'asc' or 'desc'.");
-            }
-            var taskItems = await service.GetAllTasksAsync(page, pageSize, sort);
+            validator.ValidateAndThrow(taskQueryParams);
+            var taskItems = await service.GetAllTasksAsync(taskQueryParams.Page, taskQueryParams.PageSize, taskQueryParams.Sort);
             return Results.Ok(taskItems);
         });
 

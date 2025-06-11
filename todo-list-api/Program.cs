@@ -1,12 +1,9 @@
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using TodoListApi.Data;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using TodoListApi.Application.Mapping;
-using Microsoft.Extensions.Configuration;
 using TodoListApi.Application.Services;
 using FluentValidation;
 using TodoListApi.Application.Dtos;
@@ -32,6 +29,7 @@ builder.Services.AddPersistence(builder.Configuration);
 // Add application services
 builder.Services.AddScoped<ITaskService, TaskService>();
 builder.Services.AddScoped<IValidator<TaskItemDto>, TaskItemValidator>();
+builder.Services.AddScoped<IValidator<TaskQueryParams>, TaskQueryParamsValidator>();
 
 var app = builder.Build();
 

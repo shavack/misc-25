@@ -16,10 +16,10 @@ public class TaskService : ITaskService
         _context = context;
     }
 
-    public async Task<IEnumerable<TaskItem>> GetAllTasksAsync(int page = 1, int pageSize = 10, string sort = "")
+    public async Task<IEnumerable<TaskItem>> GetAllTasksAsync(int? page = 1, int? pageSize = 10, string sort = "")
     {
-        if (page < 1) page = 1;
-        if (pageSize < 1) pageSize = 10;
+        if (page is null or < 1) page = 1;
+        if (pageSize is null or < 1) pageSize = 10;
         var result = _context.Tasks.AsQueryable();
         if (sort == "asc")
         {
@@ -29,7 +29,7 @@ public class TaskService : ITaskService
         {
             result = result.OrderByDescending(t => t.Title);
         }
-        result = result.Skip((page - 1) * pageSize).Take(pageSize);
+        result = result.Skip((int)((page - 1) * pageSize)).Take(pageSize.Value);
         return await result.ToListAsync();
     }
 
