@@ -27,7 +27,8 @@ builder.Services.AddEndpointsApiExplorer();
 // Add AutoMapper
 builder.Services.AddAutoMapper(typeof(TaskMappingProfile).Assembly);
 // Add db context
-builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddPersistence(builder.Configuration);
+//builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 // Add application services
 builder.Services.AddScoped<ITaskService, TaskService>();
 builder.Services.AddScoped<IValidator<TaskItemDto>, TaskItemValidator>();
