@@ -4,3 +4,4 @@ notes/dotnet-notes.md
 *.db
 *.db-wal
 *.db-shm
+BenchMarkDotNet.Artifacts/

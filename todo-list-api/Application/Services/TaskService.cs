@@ -21,15 +21,18 @@ public class TaskService : ITaskService
         if (page is null or < 1) page = 1;
         if (pageSize is null or < 1) pageSize = 10;
         var result = _context.Tasks.AsQueryable();
-        if (sort == "asc")
+        
+        if (!string.IsNullOrEmpty(sort))
         {
-            result = result.OrderBy(t => t.Title);
+            result = sort.ToLower() switch
+            {
+                "asc" => result.OrderBy(t => t.Title),
+                "desc" => result.OrderByDescending(t => t.Title),
+                _ => result
+            };
         }
-        else if (sort == "desc")
-        {
-            result = result.OrderByDescending(t => t.Title);
-        }
-        if( isCompleted.HasValue)
+        
+        if (isCompleted.HasValue)
         {
             result = result.Where(t => t.IsCompleted == isCompleted.Value);
         }
