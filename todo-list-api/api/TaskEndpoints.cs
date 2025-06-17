@@ -58,6 +58,12 @@ public static class TaskEndpoints
             await service.DeleteTaskAsync(id);
             return Results.NoContent();
         });
+        tasks.MapGet("/stats", async (ITaskService service) =>
+        {
+            var stats = await service.GetStatisticsAsync();
+            return Results.Ok(stats);
+        });
+
 
         app.MapGet("error", () =>
         {

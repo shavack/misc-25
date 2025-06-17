@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using TodoListApi.Application.Dtos;
 using TodoListApi.Data;
 using TodoListApi.Domain;
 
 namespace TodoListApi.Application.Services;
+
 public class TaskService : ITaskService
 {
     private readonly AppDbContext _context;
@@ -21,7 +23,7 @@ public class TaskService : ITaskService
         if (page is null or < 1) page = 1;
         if (pageSize is null or < 1) pageSize = 10;
         var result = _context.Tasks.AsQueryable();
-        
+
         if (!string.IsNullOrEmpty(sort))
         {
             result = sort.ToLower() switch
@@ -31,7 +33,7 @@ public class TaskService : ITaskService
                 _ => result
             };
         }
-        
+
         if (isCompleted.HasValue)
         {
             result = result.Where(t => t.IsCompleted == isCompleted.Value);
@@ -73,5 +75,19 @@ public class TaskService : ITaskService
 
         _context.Tasks.Remove(taskItem);
         await _context.SaveChangesAsync();
+    }
+    
+    public async Task<TaskStatisticsDto> GetStatisticsAsync()
+    {
+        var totalTasks = await _context.Tasks.CountAsync();
+        var completedTasks = await _context.Tasks.CountAsync(t => t.IsCompleted);
+        var pendingTasks = totalTasks - completedTasks;
+
+        return new TaskStatisticsDto
+        {
+            TotalTasks = totalTasks,
+            CompletedTasks = completedTasks,
+            PendingTasks = pendingTasks,
+        };
     }
 }
