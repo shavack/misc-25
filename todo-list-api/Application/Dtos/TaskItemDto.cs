@@ -7,5 +7,6 @@ namespace TodoListApi.Application.Dtos
         [Required]
         public required string Title { get; set; }
         public bool IsCompleted { get; set; }
+        public string Description { get; set; }
     }
 }

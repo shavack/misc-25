@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
@@ -18,7 +19,11 @@ namespace TodoListApi.Migrations
                         .Annotation("Sqlite:Autoincrement", true),
                     Title = table.Column<string>(type: "TEXT", nullable: true),
                     Description = table.Column<string>(type: "TEXT", nullable: true),
-                    IsCompleted = table.Column<bool>(type: "INTEGER", nullable: false)
+                    IsCompleted = table.Column<bool>(type: "INTEGER", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    CompletedAt = table.Column<DateTime>(type: "TEXT", nullable: true),
+                    DueDate = table.Column<DateTime>(type: "TEXT", nullable: true),
+                    LastModifiedAt = table.Column<DateTime>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {

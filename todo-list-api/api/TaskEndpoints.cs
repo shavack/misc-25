@@ -56,9 +56,14 @@ public static class TaskEndpoints
             await service.DeleteTaskAsync(id);
             return Results.NoContent();
         });
-        tasks.MapGet("/stats", async (ITaskService service) =>
+
+        tasks.MapGet("/stats", async ([AsParameters] StatisticsQueryParams statisticsQueryParams, ITaskService service) =>
         {
-            var stats = await service.GetStatisticsAsync();
+            if(statisticsQueryParams.FromDate.HasValue && statisticsQueryParams.ToDate.HasValue && statisticsQueryParams.FromDate > statisticsQueryParams.ToDate)
+            {
+                return Results.BadRequest("FromDate cannot be greater than ToDate.");
+            }
+            var stats = await service.GetStatisticsAsync(fromDate: statisticsQueryParams.FromDate, toDate: statisticsQueryParams.ToDate, title: statisticsQueryParams.Title, isCompleted: statisticsQueryParams.IsCompleted);
             return Results.Ok(stats);
         });
 

@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+using System;
 using System.Threading.Tasks;
 using TodoListApi.Application.Dtos;
 using TodoListApi.Domain;
@@ -12,7 +12,7 @@ public interface ITaskService
     Task SetCompleteAsync(int id);
     Task<TaskItem> AddTaskAsync(TaskItem taskItem);
 
-    Task<TaskStatisticsDto> GetStatisticsAsync();
+    Task<TaskStatisticsDto> GetStatisticsAsync(DateTime? fromDate = null, DateTime? toDate = null, string title = "", bool? isCompleted = null);
 
     Task UpdateTaskAsync(int id, TaskItem taskItem);
 

@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
@@ -91,10 +90,27 @@ public class TaskService : ITaskService
         await _context.SaveChangesAsync();
     }
 
-    public async Task<TaskStatisticsDto> GetStatisticsAsync()
+    public async Task<TaskStatisticsDto> GetStatisticsAsync(DateTime? fromDate = null, DateTime? toDate = null, string title = "", bool? isCompleted = null)
     {
-        var totalTasks = await _context.Tasks.CountAsync();
-        var completedTasks = await _context.Tasks.CountAsync(t => t.IsCompleted);
+        var allTasks = _context.Tasks.AsQueryable();
+        if (fromDate != null)
+        {
+            allTasks = allTasks.Where(t => t.CreatedAt >= fromDate.Value);
+        }
+        if (toDate != null)
+        {
+            allTasks = allTasks.Where(t => t.CreatedAt <= toDate.Value);
+        }
+        if (isCompleted.HasValue)
+        {
+            allTasks = allTasks.Where(t => t.IsCompleted == isCompleted.Value);
+        }
+        if (!string.IsNullOrEmpty(title))
+        {
+            allTasks = allTasks.Where(t => t.Title.ToLower().Contains(title.ToLower()));
+        }
+        var totalTasks = await allTasks.CountAsync();
+        var completedTasks = await allTasks.CountAsync(t => t.IsCompleted);
         var pendingTasks = totalTasks - completedTasks;
 
         return new TaskStatisticsDto
