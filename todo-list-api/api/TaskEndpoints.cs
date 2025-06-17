@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using AutoMapper;
 using FluentValidation;
+using System.Threading.Tasks;
 
 public static class TaskEndpoints
 {
@@ -96,6 +97,12 @@ public static class TaskEndpoints
         app.MapGet("error", () =>
         {
             return Results.Problem("You did something wrong, boi");
+        });
+
+        app.MapGet("/", context =>
+        {
+            context.Response.Redirect("/swagger");
+            return Task.CompletedTask;
         });
 
         return app;
