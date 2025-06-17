@@ -62,9 +62,9 @@ public static class TaskEndpoints
             return Results.Ok(stats);
         });
 
-        tasks.MapGet("/completed", async (ITaskService service) =>
+        tasks.MapGet("/completed", async ([AsParameters] TaskQueryParams taskQueryParams, ITaskService service) =>
         {
-            var completedTasks = await service.GetAllTasksAsync(isCompleted: true);
+            var completedTasks = await service.GetAllTasksAsync(page: taskQueryParams.Page, pageSize: taskQueryParams.PageSize, isCompleted: true, sort: taskQueryParams.Sort, title: taskQueryParams.Title);
             return Results.Ok(completedTasks);
         });
 

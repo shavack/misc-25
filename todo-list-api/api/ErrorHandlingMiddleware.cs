@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using FluentValidation;
@@ -24,5 +25,11 @@ public class ErrorHandlingMiddleware
             var errors = ex.Errors.Select(e => new { e.PropertyName, e.ErrorMessage });
             await context.Response.WriteAsJsonAsync(errors);
         }
+        catch (KeyNotFoundException ex)
+        {
+            context.Response.StatusCode = StatusCodes.Status404NotFound;
+            await context.Response.WriteAsJsonAsync(new { error = ex.Message });
+        }
+
     }
 }
