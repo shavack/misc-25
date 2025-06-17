@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-
+namespace TodoListApi.Application.Dtos;
 public class PaginatedResultDto<T>
 {
     public int Page { get; set; }

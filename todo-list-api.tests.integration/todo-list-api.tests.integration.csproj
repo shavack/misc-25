@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>Exe</OutputType>
+    <OutputType>library</OutputType>
     <TargetFramework>net9.0</TargetFramework>
     <RootNamespace>todo_list_api.tests.integration</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>

@@ -15,5 +15,8 @@ public interface ITaskService
     Task<TaskStatisticsDto> GetStatisticsAsync();
 
     Task UpdateTaskAsync(int id, TaskItem taskItem);
+
+    Task PatchTaskAsync(PatchTaskItemDto taskItem);
+    
     Task DeleteTaskAsync(int id);
 }

@@ -90,7 +90,7 @@ public class TaskService : ITaskService
         _context.Tasks.Remove(taskItem);
         await _context.SaveChangesAsync();
     }
-    
+
     public async Task<TaskStatisticsDto> GetStatisticsAsync()
     {
         var totalTasks = await _context.Tasks.CountAsync();
@@ -115,5 +115,20 @@ public class TaskService : ITaskService
         taskItem.IsCompleted = true;
         _context.Tasks.Update(taskItem);
         return _context.SaveChangesAsync();
+    }
+    
+    public async Task PatchTaskAsync(PatchTaskItemDto taskItem)
+    {
+        var existingTask = await _context.Tasks.FindAsync(taskItem.Id);
+        if (existingTask == null)
+        {
+            throw new KeyNotFoundException("Task not found");
+        }
+        existingTask.Title = taskItem.Title ?? existingTask.Title;
+        existingTask.Description = taskItem.Description ?? existingTask.Description;
+        existingTask.IsCompleted = taskItem.IsCompleted ?? existingTask.IsCompleted;
+
+        _context.Tasks.Update(existingTask);
+        await _context.SaveChangesAsync();
     }
 }

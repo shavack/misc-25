@@ -77,6 +77,17 @@ public static class TaskEndpoints
             await service.SetCompleteAsync(id);
             return Results.NoContent();
         });
+
+        tasks.MapPatch("{id}", async (PatchTaskItemDto patchTaskItemDto, ITaskService service) =>
+        {
+            if (patchTaskItemDto.Id <= 0)
+            {
+                return Results.BadRequest("Invalid task ID.");
+            }
+            await service.PatchTaskAsync(patchTaskItemDto);
+            return Results.NoContent();
+        });
+        
         app.MapGet("error", () =>
         {
             return Results.Problem("You did something wrong, boi");
