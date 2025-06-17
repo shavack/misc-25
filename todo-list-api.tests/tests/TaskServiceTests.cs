@@ -19,7 +19,11 @@ public class TaskServiceTests
 
         var tasks = await service.GetAllTasksAsync();
 
-        Assert.Empty(tasks);
+        Assert.Empty(tasks.Items);
+        Assert.Equal(1, tasks.Page);
+        Assert.Equal(10, tasks.PageSize);
+        Assert.Equal(0, tasks.TotalCount);
+        Assert.Equal(0, tasks.TotalPages);
     }
 
     [Fact]
@@ -53,7 +57,60 @@ public class TaskServiceTests
         await service.AddTaskAsync(task);
 
         var tasks = await service.GetAllTasksAsync();
-        Assert.Single(tasks);
-        Assert.Equal("Test Task", tasks.ToList()[0].Title);
+        Assert.Single(tasks.Items);
+        Assert.Equal("Test Task", tasks.Items.ToList()[0].Title);
+        Assert.Equal("This is a test task.", tasks.Items.ToList()[0].Description);
+        Assert.Equal(1, tasks.TotalCount);
+        Assert.Equal(1, tasks.TotalPages);
+        Assert.Equal(1, tasks.Page);
+        Assert.Equal(10, tasks.PageSize);
+    }
+
+    [Fact]
+    public async Task GetAllTasks_MultipleTasks()
+    {
+        var options = new DbContextOptionsBuilder<AppDbContext>()
+            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+            .Options;
+
+        using var context = new AppDbContext(options);
+        var service = new TaskService(context);
+
+        for (int i = 0; i < 5; i++)
+        {
+            await service.AddTaskAsync(new TaskItem { Title = $"Task {i + 1}", Description = $"Description {i + 1}"});
+        }
+
+        var tasks = await service.GetAllTasksAsync();
+
+        Assert.Equal(5, tasks.Items.Count());
+        Assert.Equal(5, tasks.TotalCount);
+        Assert.Equal(1, tasks.Page);
+        Assert.Equal(10, tasks.PageSize);
+        Assert.Equal(1, tasks.TotalPages);
+    }
+    
+        [Fact]
+    public async Task GetAllTasks_MultipleTasksWithParameter()
+    {
+        var options = new DbContextOptionsBuilder<AppDbContext>()
+            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+            .Options;
+
+        using var context = new AppDbContext(options);
+        var service = new TaskService(context);
+
+        for (int i = 0; i < 5; i++)
+        {
+            await service.AddTaskAsync(new TaskItem { Title = $"Task {i + 1}", Description = $"Description {i + 1}", IsCompleted = i%2 == 0 });    
+        }
+
+        var tasks = await service.GetAllTasksAsync(isCompleted: false);
+
+        Assert.Equal(2, tasks.Items.Count());
+        Assert.Equal(5, tasks.TotalCount);
+        Assert.Equal(1, tasks.Page);
+        Assert.Equal(10, tasks.PageSize);
+        Assert.Equal(1, tasks.TotalPages);
     }
 }
