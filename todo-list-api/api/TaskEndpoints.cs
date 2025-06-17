@@ -63,6 +63,11 @@ public static class TaskEndpoints
             return Results.Ok(stats);
         });
 
+        tasks.MapGet("/completed", async (ITaskService service) =>
+        {
+            var completedTasks = await service.GetAllTasksAsync(isCompleted: true);
+            return Results.Ok(completedTasks);
+        });
 
         app.MapGet("error", () =>
         {

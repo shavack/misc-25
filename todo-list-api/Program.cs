@@ -53,3 +53,4 @@ app.MapControllers();
 app.Logger.LogInformation("The app started");
 
 app.Run();
+public partial class Program { }; 

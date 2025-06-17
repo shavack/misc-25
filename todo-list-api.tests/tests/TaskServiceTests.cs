@@ -78,7 +78,7 @@ public class TaskServiceTests
 
         for (int i = 0; i < 5; i++)
         {
-            await service.AddTaskAsync(new TaskItem { Title = $"Task {i + 1}", Description = $"Description {i + 1}"});
+            await service.AddTaskAsync(new TaskItem { Title = $"Task {i + 1}", Description = $"Description {i + 1}" });
         }
 
         var tasks = await service.GetAllTasksAsync();
@@ -89,8 +89,8 @@ public class TaskServiceTests
         Assert.Equal(10, tasks.PageSize);
         Assert.Equal(1, tasks.TotalPages);
     }
-    
-        [Fact]
+
+    [Fact]
     public async Task GetAllTasks_MultipleTasksWithParameter()
     {
         var options = new DbContextOptionsBuilder<AppDbContext>()
@@ -102,7 +102,7 @@ public class TaskServiceTests
 
         for (int i = 0; i < 5; i++)
         {
-            await service.AddTaskAsync(new TaskItem { Title = $"Task {i + 1}", Description = $"Description {i + 1}", IsCompleted = i%2 == 0 });    
+            await service.AddTaskAsync(new TaskItem { Title = $"Task {i + 1}", Description = $"Description {i + 1}", IsCompleted = i % 2 == 0 });
         }
 
         var tasks = await service.GetAllTasksAsync(isCompleted: false);
@@ -112,5 +112,26 @@ public class TaskServiceTests
         Assert.Equal(1, tasks.Page);
         Assert.Equal(10, tasks.PageSize);
         Assert.Equal(1, tasks.TotalPages);
+    }
+    
+    [Fact]
+    public async Task GetCompletedTasks_ReturnsCompletedTasks()
+    {
+        var options = new DbContextOptionsBuilder<AppDbContext>()
+            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+            .Options;
+
+        using var context = new AppDbContext(options);
+        var service = new TaskService(context);
+
+        for (int i = 0; i < 5; i++)
+        {
+            await service.AddTaskAsync(new TaskItem { Title = $"Task {i + 1}", Description = $"Description {i + 1}", IsCompleted = i % 2 == 0 });
+        }
+
+        var completedTasks = await service.GetAllTasksAsync(isCompleted: true);
+
+        Assert.Equal(3, completedTasks.Items.Count());
+        Assert.All(completedTasks.Items, task => Assert.True(task.IsCompleted));
     }
 }
