@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
+using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using TodoListApi.Application.Dtos;
 using TodoListApi.Data;
@@ -18,7 +20,7 @@ public class TaskService : ITaskService
         _context = context;
     }
 
-    public async Task<IEnumerable<TaskItem>> GetAllTasksAsync(int? page = 1, int? pageSize = 10, string sort = "", bool? isCompleted = false)
+    public async Task<PaginatedResultDto<TaskItem>> GetAllTasksAsync(int? page = 1, int? pageSize = 10, string sort = "", bool? isCompleted = false)
     {
         if (page is null or < 1) page = 1;
         if (pageSize is null or < 1) pageSize = 10;
@@ -39,7 +41,15 @@ public class TaskService : ITaskService
             result = result.Where(t => t.IsCompleted == isCompleted.Value);
         }
         result = result.Skip((int)((page - 1) * pageSize)).Take(pageSize.Value);
-        return await result.ToListAsync();
+        var resultPaginated = new PaginatedResultDto<TaskItem>
+        {
+            Page = page.Value,
+            PageSize = pageSize.Value,
+            TotalCount = await _context.Tasks.CountAsync(),
+            TotalPages = (int)Math.Ceiling((double)await _context.Tasks.CountAsync() / pageSize.Value),
+            Items = await result.ToListAsync(),
+        };
+        return resultPaginated;
     }
 
     public async Task<TaskItem> GetTaskByIdAsync(int id)

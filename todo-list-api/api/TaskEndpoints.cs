@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using AutoMapper;
 using FluentValidation;
-using Microsoft.AspNetCore.Mvc;
 
 public static class TaskEndpoints
 {

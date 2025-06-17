@@ -6,7 +6,7 @@ namespace TodoListApi.Application.Services;
 
 public interface ITaskService
 {
-    Task<IEnumerable<TaskItem>> GetAllTasksAsync(int? page = 1, int? pageSize = 1, string sort = "", bool? isCompleted = false);
+    Task<PaginatedResultDto<TaskItem>> GetAllTasksAsync(int? page = 1, int? pageSize = 1, string sort = "", bool? isCompleted = false);
     Task<TaskItem> GetTaskByIdAsync(int id);
     Task<TaskItem> AddTaskAsync(TaskItem taskItem);
 
