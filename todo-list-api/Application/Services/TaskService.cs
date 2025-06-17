@@ -20,7 +20,7 @@ public class TaskService : ITaskService
         _context = context;
     }
 
-    public async Task<PaginatedResultDto<TaskItem>> GetAllTasksAsync(int? page = 1, int? pageSize = 10, string sort = "", bool? isCompleted = false)
+    public async Task<PaginatedResultDto<TaskItem>> GetAllTasksAsync(int? page = 1, int? pageSize = 10, string sort = "", bool? isCompleted = false, string title = "")
     {
         if (page is null or < 1) page = 1;
         if (pageSize is null or < 1) pageSize = 10;
@@ -39,6 +39,10 @@ public class TaskService : ITaskService
         if (isCompleted.HasValue)
         {
             result = result.Where(t => t.IsCompleted == isCompleted.Value);
+        }
+        if (!string.IsNullOrEmpty(title))
+        {
+            result = result.Where(t => t.Title.ToLower().Contains(title.ToLower()));
         }
         result = result.Skip((int)((page - 1) * pageSize)).Take(pageSize.Value);
         var resultPaginated = new PaginatedResultDto<TaskItem>
