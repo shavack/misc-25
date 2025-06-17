@@ -104,4 +104,16 @@ public class TaskService : ITaskService
             PendingTasks = pendingTasks,
         };
     }
+
+    public Task SetCompleteAsync(int id)
+    {
+        var taskItem = _context.Tasks.Find(id);
+        if (taskItem == null)
+        {
+            throw new KeyNotFoundException("Task not found");
+        }
+        taskItem.IsCompleted = true;
+        _context.Tasks.Update(taskItem);
+        return _context.SaveChangesAsync();
+    }
 }

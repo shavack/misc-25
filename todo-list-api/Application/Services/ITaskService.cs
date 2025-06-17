@@ -8,6 +8,8 @@ public interface ITaskService
 {
     Task<PaginatedResultDto<TaskItem>> GetAllTasksAsync(int? page = 1, int? pageSize = 1, string sort = "", bool? isCompleted = false, string title = "");
     Task<TaskItem> GetTaskByIdAsync(int id);
+
+    Task SetCompleteAsync(int id);
     Task<TaskItem> AddTaskAsync(TaskItem taskItem);
 
     Task<TaskStatisticsDto> GetStatisticsAsync();

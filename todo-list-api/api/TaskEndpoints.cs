@@ -49,10 +49,9 @@ public static class TaskEndpoints
 
         tasks.MapDelete("/{id}", async (int id, ITaskService service) =>
         {
-            var toBeDeleted = await service.GetTaskByIdAsync(id);
-            if (toBeDeleted == null)
+            if(id <= 0)
             {
-                return Results.NotFound();
+                return Results.BadRequest("Invalid task ID.");
             }
             await service.DeleteTaskAsync(id);
             return Results.NoContent();
@@ -69,6 +68,15 @@ public static class TaskEndpoints
             return Results.Ok(completedTasks);
         });
 
+        tasks.MapPatch("/{id}/complete", async (int id, ITaskService service) =>
+        {
+            if (id <= 0)
+            {
+                return Results.BadRequest("Invalid task ID.");
+            }
+            await service.SetCompleteAsync(id);
+            return Results.NoContent();
+        });
         app.MapGet("error", () =>
         {
             return Results.Problem("You did something wrong, boi");
