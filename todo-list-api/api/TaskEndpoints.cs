@@ -93,6 +93,16 @@ public static class TaskEndpoints
             await service.PatchTaskAsync(patchTaskItemDto);
             return Results.NoContent();
         });
+
+        tasks.MapDelete("/delete", async ([AsParameters] DeleteTasksDto deleteTasksDto, ITaskService service) =>
+        {
+            if (deleteTasksDto.TaskIds == null || deleteTasksDto.TaskIds.Length == 0)
+            {
+                return Results.BadRequest("No task IDs provided for deletion.");
+            }
+            await service.DeleteTasksAsync(deleteTasksDto);
+            return Results.NoContent();
+        });
         
         app.MapGet("error", () =>
         {

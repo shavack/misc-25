@@ -1,4 +1,5 @@
 using System;
+using System.Data.Common;
 using System.Threading.Tasks;
 using TodoListApi.Application.Dtos;
 using TodoListApi.Domain;
@@ -17,6 +18,8 @@ public interface ITaskService
     Task UpdateTaskAsync(int id, TaskItem taskItem);
 
     Task PatchTaskAsync(PatchTaskItemDto taskItem);
-    
+
     Task DeleteTaskAsync(int id);
+    
+    Task DeleteTasksAsync(DeleteTasksDto deleteTasksDto);
 }

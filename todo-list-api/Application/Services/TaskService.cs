@@ -132,7 +132,7 @@ public class TaskService : ITaskService
         _context.Tasks.Update(taskItem);
         return _context.SaveChangesAsync();
     }
-    
+
     public async Task PatchTaskAsync(PatchTaskItemDto taskItem)
     {
         var existingTask = await _context.Tasks.FindAsync(taskItem.Id);
@@ -145,6 +145,18 @@ public class TaskService : ITaskService
         existingTask.IsCompleted = taskItem.IsCompleted ?? existingTask.IsCompleted;
 
         _context.Tasks.Update(existingTask);
+        await _context.SaveChangesAsync();
+    }
+    
+    public async Task DeleteTasksAsync(DeleteTasksDto deleteTasksDto)
+    {
+        var tasksToDelete = await _context.Tasks.Where(t => deleteTasksDto.TaskIds.Contains(t.Id)).ToListAsync();
+        if (tasksToDelete.Count != deleteTasksDto.TaskIds.Length)
+        {
+            throw new KeyNotFoundException("All provided task IDs are not found.");
+        }
+
+        _context.Tasks.RemoveRange(tasksToDelete);
         await _context.SaveChangesAsync();
     }
 }
