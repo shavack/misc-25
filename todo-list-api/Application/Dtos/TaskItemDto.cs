@@ -10,5 +10,6 @@ namespace TodoListApi.Application.Dtos
         public bool IsCompleted { get; set; }
         public string Description { get; set; }
         public DateTime? CompletedAt { get; set; }
+        public DateTime? DueDate { get; set; } 
     }
 }

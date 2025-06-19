@@ -104,6 +104,13 @@ public static class TaskEndpoints
             return Results.NoContent();
         });
         
+        tasks.MapGet("/overdue", async ([AsParameters] OverdueTasksDto overdueTasksDto, ITaskService service) =>
+        {
+            var overdueTasks = await service.GetOverdueTasksAsync(overdueTasksDto);
+
+            return Results.Ok(overdueTasks);
+        });
+
         app.MapGet("error", () =>
         {
             return Results.Problem("You did something wrong, boi");

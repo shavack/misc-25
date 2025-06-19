@@ -162,7 +162,7 @@ public class TaskServiceTests
         Assert.DoesNotContain(remainingTasks.Items, task => task.Id == 1);
         Assert.DoesNotContain(remainingTasks.Items, task => task.Id == 3);
     }
-    
+
     [Fact]
     public async Task DeleteTaskAsync_IdsDoesntExist()
     {
@@ -172,16 +172,41 @@ public class TaskServiceTests
 
         using var context = new AppDbContext(options);
         var service = new TaskService(context);
-                for (int i = 0; i < 5; i++)
+        for (int i = 0; i < 5; i++)
         {
             await service.AddTaskAsync(new TaskItem { Title = $"Task {i + 1}", Description = $"Description {i + 1}", IsCompleted = i % 2 == 0 });
         }
 
         var deleteTasksDto = new DeleteTasksDto
         {
-            TaskIds = [1,2,8]
+            TaskIds = [1, 2, 8]
         };
-        
+
         await Assert.ThrowsAsync<KeyNotFoundException>(() => service.DeleteTasksAsync(deleteTasksDto));
     }
+
+    [Fact]
+    public async Task GetOverdueTasks_ReturnsValues()
+    {
+        var options = new DbContextOptionsBuilder<AppDbContext>()
+            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+            .Options;
+
+        using var context = new AppDbContext(options);
+        var service = new TaskService(context);
+
+        for (int i = 0; i < 5; i++)
+        {
+            await service.AddTaskAsync(new TaskItem { Title = $"Task {i + 1}", Description = $"Description {i + 1}", IsCompleted = false, DueDate = DateTime.Now.AddDays(-1) });
+        }
+        for (int i = 0; i < 5; i++)
+        {
+            await service.AddTaskAsync(new TaskItem { Title = $"Task {i + 6}", Description = $"Description {i + 6}", IsCompleted = true, DueDate = DateTime.Now.AddDays(1) });
+        }
+
+        var overdueTasks = await service.GetOverdueTasksAsync();
+        Assert.Equal(5, overdueTasks.Count);
+        Assert.All(overdueTasks, task => Assert.True(task.DueDate < DateTime.Now && !task.IsCompleted));
+    }
+    
 }

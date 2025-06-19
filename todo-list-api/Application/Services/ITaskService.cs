@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Data.Common;
 using System.Threading.Tasks;
 using TodoListApi.Application.Dtos;
@@ -20,6 +21,8 @@ public interface ITaskService
     Task PatchTaskAsync(PatchTaskItemDto taskItem);
 
     Task DeleteTaskAsync(int id);
-    
+
     Task DeleteTasksAsync(DeleteTasksDto deleteTasksDto);
+
+    Task<List<TaskItem>> GetOverdueTasksAsync(OverdueTasksDto overdueTasksDto);
 }

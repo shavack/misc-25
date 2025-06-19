@@ -147,7 +147,7 @@ public class TaskService : ITaskService
         _context.Tasks.Update(existingTask);
         await _context.SaveChangesAsync();
     }
-    
+
     public async Task DeleteTasksAsync(DeleteTasksDto deleteTasksDto)
     {
         var tasksToDelete = await _context.Tasks.Where(t => deleteTasksDto.TaskIds.Contains(t.Id)).ToListAsync();
@@ -158,5 +158,17 @@ public class TaskService : ITaskService
 
         _context.Tasks.RemoveRange(tasksToDelete);
         await _context.SaveChangesAsync();
+    }
+    
+    public async Task<List<TaskItem>> GetOverdueTasksAsync(OverdueTasksDto overdueTasksDto)
+    {
+        var page = overdueTasksDto.Page ?? 1;
+        var pageSize = overdueTasksDto.PageSize ?? 10;
+ 
+        var overdueTasks = await _context.Tasks
+            .Where(t => t.DueDate < DateTime.Now && !t.IsCompleted)
+            .Skip((int)((page - 1) * pageSize)).Take(pageSize)
+            .ToListAsync();
+        return overdueTasks;
     }
 }
