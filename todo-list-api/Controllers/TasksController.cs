@@ -25,7 +25,7 @@ namespace TodoListApi.Controllers
         public async Task<ActionResult<PaginatedResultDto<TaskItem>>> GetTasks([AsParameters] TaskQueryParams taskQueryParams, IValidator<TaskQueryParams> validator)
         {
             validator.ValidateAndThrow(taskQueryParams);
-            var tasks = await _taskService.GetAllTasksAsync(taskQueryParams.Page, taskQueryParams.PageSize, taskQueryParams.Sort, taskQueryParams.IsCompleted);
+            var tasks = await _taskService.GetAllTasksAsync(taskQueryParams);
             var paginatedResult = new PaginatedResultDto<TaskItem>
             {
                 Items = tasks.Items,

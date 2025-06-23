@@ -19,22 +19,45 @@ public class TaskService : ITaskService
         _context = context;
     }
 
-    public async Task<PaginatedResultDto<TaskItem>> GetAllTasksAsync(int? page = 1, int? pageSize = 10, string sort = "", bool? isCompleted = false, string title = "")
+    public async Task<PaginatedResultDto<TaskItem>> GetAllTasksAsync(TaskQueryParams task)
     {
+        var page = task.Page;
+        var pageSize = task.PageSize;
+        var sortBy = task.SortBy;
+        var sortOrder = task.SortOrder;
+        var isCompleted = task.IsCompleted;
+        var title = task.Title;
+        var dueDateFrom = task.DueDateFrom;
+        var dueDateTo = task.DueDateTo;
+
         if (page is null or < 1) page = 1;
         if (pageSize is null or < 1) pageSize = 10;
         var result = _context.Tasks.AsQueryable();
-
-        if (!string.IsNullOrEmpty(sort))
+        if (task.SortBy is not null)
         {
-            result = sort.ToLower() switch
+            result = sortBy.ToLower() switch
             {
-                "asc" => result.OrderBy(t => t.Title),
-                "desc" => result.OrderByDescending(t => t.Title),
-                _ => result
+                "duedate" => sortOrder.ToLower() switch
+                {
+                    "asc" => result.OrderBy(t => t.DueDate),
+                    "desc" => result.OrderByDescending(t => t.DueDate),
+                    _ => result
+                },
+                "title" => sortOrder.ToLower() switch
+                {
+                    "asc" => result.OrderBy(t => t.Title),
+                    "desc" => result.OrderByDescending(t => t.Title),
+                    _ => result
+                },
+                _ => sortOrder.ToLower() switch
+                {
+                    "asc" => result.OrderBy(t => t.Title),
+                    "desc" => result.OrderByDescending(t => t.Title),
+                    _ => result
+                },
             };
-        }
 
+        }
         if (isCompleted.HasValue)
         {
             result = result.Where(t => t.IsCompleted == isCompleted.Value);
@@ -42,6 +65,14 @@ public class TaskService : ITaskService
         if (!string.IsNullOrEmpty(title))
         {
             result = result.Where(t => t.Title.ToLower().Contains(title.ToLower()));
+        }
+        if (dueDateFrom.HasValue)
+        {
+            result = result.Where(t => t.DueDate >= dueDateFrom.Value);
+        }
+        if (dueDateTo.HasValue)
+        {
+            result = result.Where(t => t.DueDate <= dueDateTo.Value);
         }
         result = result.Skip((int)((page - 1) * pageSize)).Take(pageSize.Value);
         var resultPaginated = new PaginatedResultDto<TaskItem>
@@ -159,16 +190,28 @@ public class TaskService : ITaskService
         _context.Tasks.RemoveRange(tasksToDelete);
         await _context.SaveChangesAsync();
     }
-    
+
     public async Task<List<TaskItem>> GetOverdueTasksAsync(OverdueTasksDto overdueTasksDto)
     {
         var page = overdueTasksDto.Page ?? 1;
         var pageSize = overdueTasksDto.PageSize ?? 10;
- 
+
         var overdueTasks = await _context.Tasks
             .Where(t => t.DueDate < DateTime.Now && !t.IsCompleted)
             .Skip((int)((page - 1) * pageSize)).Take(pageSize)
             .ToListAsync();
         return overdueTasks;
+    }
+    
+    public async Task ToggleCompletionAsync(int id)
+    {
+        var taskItem = await _context.Tasks.FindAsync(id);
+        if (taskItem == null)
+        {
+            throw new KeyNotFoundException("Task not found");
+        }
+        taskItem.IsCompleted = !taskItem.IsCompleted;
+        _context.Tasks.Update(taskItem);
+        await _context.SaveChangesAsync();
     }
 }

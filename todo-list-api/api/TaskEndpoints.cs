@@ -16,7 +16,7 @@ public static class TaskEndpoints
         tasks.MapGet("/", async (ITaskService service, [AsParameters] TaskQueryParams taskQueryParams, IValidator<TaskQueryParams> validator) =>
         {
             validator.ValidateAndThrow(taskQueryParams);
-            var taskItems = await service.GetAllTasksAsync(taskQueryParams.Page, taskQueryParams.PageSize, taskQueryParams.Sort, taskQueryParams.IsCompleted, taskQueryParams.Title);
+            var taskItems = await service.GetAllTasksAsync(taskQueryParams);
             return Results.Ok(taskItems);
         });
 
@@ -70,7 +70,8 @@ public static class TaskEndpoints
 
         tasks.MapGet("/completed", async ([AsParameters] TaskQueryParams taskQueryParams, ITaskService service) =>
         {
-            var completedTasks = await service.GetAllTasksAsync(page: taskQueryParams.Page, pageSize: taskQueryParams.PageSize, isCompleted: true, sort: taskQueryParams.Sort, title: taskQueryParams.Title);
+            taskQueryParams.IsCompleted = true;
+            var completedTasks = await service.GetAllTasksAsync(taskQueryParams);
             return Results.Ok(completedTasks);
         });
 
@@ -109,6 +110,16 @@ public static class TaskEndpoints
             var overdueTasks = await service.GetOverdueTasksAsync(overdueTasksDto);
 
             return Results.Ok(overdueTasks);
+        });
+
+        tasks.MapPatch("/{id}/toggle-complete", async (int id, ITaskService service) =>
+        {
+            if (id <= 0)
+            {
+                return Results.BadRequest("Invalid task ID.");
+            }
+            await service.ToggleCompletionAsync(id);
+            return Results.NoContent();
         });
 
         app.MapGet("error", () =>

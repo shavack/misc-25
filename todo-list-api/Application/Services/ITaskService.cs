@@ -8,7 +8,7 @@ namespace TodoListApi.Application.Services;
 
 public interface ITaskService
 {
-    Task<PaginatedResultDto<TaskItem>> GetAllTasksAsync(int? page = 1, int? pageSize = 1, string sort = "", bool? isCompleted = false, string title = "");
+    Task<PaginatedResultDto<TaskItem>> GetAllTasksAsync(TaskQueryParams taskQueryParams);
     Task<TaskItem> GetTaskByIdAsync(int id);
 
     Task SetCompleteAsync(int id);
@@ -25,4 +25,6 @@ public interface ITaskService
     Task DeleteTasksAsync(DeleteTasksDto deleteTasksDto);
 
     Task<List<TaskItem>> GetOverdueTasksAsync(OverdueTasksDto overdueTasksDto);
+
+    Task ToggleCompletionAsync(int id);
 }
