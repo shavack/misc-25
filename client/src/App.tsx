@@ -1,14 +1,14 @@
-import { TaskListPage } from './pages/TaskListPage';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-
-const queryClient = new QueryClient();
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import TaskList from './pages/TaskList'
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <TaskListPage />
-    </QueryClientProvider>
-  );
+    <Router>
+      <Routes>
+        <Route path="/" element={<TaskList />} />
+      </Routes>
+    </Router>
+  )
 }
 
-export default App;
+export default App
