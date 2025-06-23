@@ -31,14 +31,14 @@ export const TaskListPage = () => {
           >
             <div>
               <p className="font-semibold">{task.title}</p>
-              <p className="text-sm text-gray-600">{task.description}</p>
+              <p className="text-sm text-blue-600">{task.description}</p>
+              <p className="text-xs text-gray-500">
+                    Due: {task.dueDate ? new Date(task.dueDate).toLocaleDateString() : 'N/A'}</p>
             </div>
-            <span
-              className={`text-xs font-medium px-2 py-1 rounded-full ${
-                task.isCompleted ? 'bg-green-200 text-green-800' : 'bg-yellow-200 text-yellow-800'
-              }`}
-            >
-              {task.isCompleted ? 'Completed' : 'Pending'}
+
+            <span className={`rounded-full px-3 py-1 text-sm font-medium text-white
+                ${task.isCompleted ? 'bg-emerald-500' : 'bg-yellow-500'}`}>
+                {task.isCompleted ? 'Completed' : 'Pending'}
             </span>
           </li>
         ))}

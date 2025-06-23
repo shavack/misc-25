@@ -30,16 +30,26 @@ builder.Services.AddPersistence(builder.Configuration);
 builder.Services.AddScoped<ITaskService, TaskService>();
 builder.Services.AddScoped<IValidator<TaskItemDto>, TaskItemValidator>();
 builder.Services.AddScoped<IValidator<TaskQueryParams>, TaskQueryParamsValidator>();
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        policy
+            .AllowAnyOrigin()
+            .AllowAnyMethod()
+            .AllowAnyHeader();
+    });
+});
 
 var app = builder.Build();
 
 // Enable Swagger middleware
 if (app.Environment.IsDevelopment() || app.Environment.IsStaging() || app.Environment.IsProduction())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+  app.UseSwagger();
+  app.UseSwaggerUI();
 }
-
+app.UseCors();
 app.UseMiddleware<ErrorHandlingMiddleware>();
 
 // Configure the HTTP request pipeline.
