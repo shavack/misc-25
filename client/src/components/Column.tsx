@@ -1,6 +1,6 @@
 import { useDroppable } from '@dnd-kit/core'
 import TaskCard from './TaskCard'
-import type { Task } from '../api/tasks'
+import type { Task } from '../dto/types'
 
 interface ColumnProps {
   id: string

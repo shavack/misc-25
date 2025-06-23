@@ -1,25 +1,30 @@
-import type { Task } from '../api/tasks'
-import { useToggleTask } from '../hooks/usetasks'
+import type { Task } from '../dto/types'
+import { useDraggable } from '@dnd-kit/core'
 
 export default function TaskCard({ task }: { task: Task }) {
-  const { mutate: toggle } = useToggleTask()
+  const { attributes, listeners, setNodeRef } = useDraggable({
+    id: task.id,
+    data: { status: task.isCompleted ? 'Completed' : 'Pending' },
+  })
 
   return (
     <div
-      className="p-4 bg-zinc-800 rounded-xl shadow-md mb-2 cursor-pointer hover:bg-zinc-700 transition"
-      onClick={() => toggle(task)}
+      ref={setNodeRef}
+      {...listeners}
+      {...attributes}
+      className="bg-gray-800 p-4 rounded-xl border border-white/20"
     >
-      <div className="flex justify-between items-center">
-        <h3 className="font-semibold">{task.title}</h3>
+      <div className="flex justify-between">
+        <h3 className="font-bold text-white">{task.title}</h3>
         <span
-          className={`text-xs font-bold px-3 py-1 rounded-full ${
-            task.isCompleted ? 'bg-green-300 text-green-800' : 'bg-yellow-300 text-yellow-800'
+          className={`text-xs px-2 py-1 rounded-full ${
+            task.isCompleted ? 'bg-green-300 text-green-900' : 'bg-yellow-300 text-yellow-900'
           }`}
         >
           {task.isCompleted ? 'Completed' : 'Pending'}
         </span>
       </div>
-      <p className="text-zinc-400 text-sm">{task.description}</p>
+      <p className="text-gray-400">{task.description}</p>
     </div>
   )
 }

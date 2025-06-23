@@ -1,15 +1,9 @@
 // src/api/tasks.ts
 import axios from 'axios'
+import type { Task, PaginatedResponse } from '../dto/types'
 
-export interface Task {
-  id: number
-  title: string
-  description: string
-  isCompleted: boolean
-}
-
-export const getTasks = async (): Promise<Task[]> => {
-  const res = await axios.get<Task[]>('http://localhost:5000/tasks')
+export const getTasks = async (): Promise<PaginatedResponse<Task>> => {
+  const res = await axios.get<PaginatedResponse<Task>>('http://localhost:5000/tasks')
   return res.data
 }
 
