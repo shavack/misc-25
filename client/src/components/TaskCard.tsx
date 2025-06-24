@@ -12,8 +12,10 @@ export default function TaskCard({ task }: { task: Task }) {
       ref={setNodeRef}
       {...listeners}
       {...attributes}
-      className="bg-gray-800 p-4 rounded-xl border border-white/20"
-    >
+      className={`p-4 rounded-xl border border-white/20 ${
+        task.dueDate && new Date(task.dueDate) < new Date() && task.state != 2 ? 'bg-red-500' : 'bg-gray-800'
+      }`}
+        >
       <div className="flex justify-between">
         <h3 className="font-bold text-white">{task.title}</h3>
         <span
