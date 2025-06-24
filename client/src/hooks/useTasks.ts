@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { getTasks, toggleTask } from '../api/tasks'
+import { getTasks, patchTask } from '../api/tasks'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import type { PaginatedResponse, Task } from '../dto/types'
 
@@ -10,10 +10,11 @@ export const useTasks = () => {
   })
 }
 
-export const useToggleTask = () => {
+export const usePatchTask = () => {
   const queryClient = useQueryClient()
+
   return useMutation({
-    mutationFn: toggleTask,
+    mutationFn: patchTask,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tasks'] })
     },

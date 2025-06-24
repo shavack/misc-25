@@ -1,25 +1,18 @@
 import { DndContext, closestCenter} from '@dnd-kit/core'
 import Column from './Column'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
-import axios from 'axios'
-import { useTasks } from '../hooks/useTasks'
+import { useTasks, usePatchTask } from '../hooks/useTasks'
 import type { DragEndEvent } from '@dnd-kit/core'
 
 export default function Board() {
-    const queryClient = useQueryClient()
     const { data, isLoading, error } = useTasks()
 
-    const toggleStatus = useMutation({
-    mutationFn: (id: number) =>
-        axios.patch(`http://localhost:5000/tasks/${id}/toggle-complete`),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['tasks'] }),
-    })
+    const mutation = usePatchTask()
     const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event
-    if (!over || active.data.current?.status === over.id) return
+        const { active, over } = event
+        if (!over || active.id === over.id) return
 
-    const taskId = active.id
-        toggleStatus.mutate(Number(taskId))
+        const newState = mapColumnIdToTaskState(String(over.id)) // np. 'backlog' => 0
+        mutation.mutate({ id: active.id as number, state: newState })
     }
 
     if (isLoading) return <p>Loading...</p>
@@ -38,4 +31,17 @@ export default function Board() {
         </div>
     </DndContext>
     )
+}
+
+const mapColumnIdToTaskState = (id: string): number => {
+  switch (id) {
+    case 'Backlog':
+      return 0 // Not started
+    case 'In progress':
+      return 1 // In progress
+    case 'Completed':
+      return 2 // Completed
+    default:
+      return 0 // Unknown state
+  }
 }
