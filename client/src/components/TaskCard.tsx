@@ -4,7 +4,7 @@ import { useDraggable } from '@dnd-kit/core'
 export default function TaskCard({ task }: { task: Task }) {
   const { attributes, listeners, setNodeRef } = useDraggable({
     id: task.id,
-    data: { status: task.isCompleted ? 'Completed' : 'Pending' },
+    data: { status: task.state == 2 ? 'Completed' : 'Pending' },
   })
 
   return (
@@ -18,10 +18,32 @@ export default function TaskCard({ task }: { task: Task }) {
         <h3 className="font-bold text-white">{task.title}</h3>
         <span
           className={`text-xs px-2 py-1 rounded-full ${
-            task.isCompleted ? 'bg-green-300 text-green-900' : 'bg-yellow-300 text-yellow-900'
+            (() => {
+              switch (task.state) {
+                case 0:
+                  return 'bg-gray-300 text-gray-900'
+                case 1:
+                  return 'bg-yellow-300 text-yellow-900'
+                case 2:
+                  return 'bg-green-300 text-green-900'
+                default:
+                  return 'bg-gray-200 text-gray-700'
+              }
+            })()
           }`}
         >
-          {task.isCompleted ? 'Completed' : 'Pending'}
+          {(() => {
+            switch (task.state) {
+              case 0:
+                return 'Not started'
+              case 1:
+                return 'In progress'
+              case 2:
+                return 'Completed'
+              default:
+                return 'undefined'
+            }
+          })()}
         </span>
 
       </div>

@@ -1,6 +1,7 @@
 using System;
 using FluentValidation;
 using TodoListApi.Application.Dtos;
+using TodoListApi.Types;
 
 namespace TodoListApi.Application.Validators
 {
@@ -13,18 +14,17 @@ namespace TodoListApi.Application.Validators
                 .MaximumLength(30).WithMessage("Title cannot exceed 30 characters.")
                 .MinimumLength(3).WithMessage("Title must be at least 3 characters long.");
 
-            RuleFor(task => task.IsCompleted)
-                .NotNull().WithMessage("IsCompleted cannot be null.")
-                .Must(value => value == true || value == false).WithMessage("IsCompleted must be either true or false.");
+            RuleFor(task => task.State)
+                .Must(value => value == TaskState.Completed || value == TaskState.InProgress || value == TaskState.NotStarted).WithMessage("IsCompleted must be either Completed, InProgress, or NotStarted.");
             RuleFor(task => task.Description)
                 .MaximumLength(100).WithMessage("Description cannot exceed 100 characters.");
 
             RuleFor(task => task.CompletedAt)
-                .NotEmpty().When(task => task.IsCompleted)
+                .NotEmpty().When(task => task.State == TaskState.Completed)
                 .WithMessage("CompletedAt must be provided when the task is completed.")
                 .Must(date => date == null || date <= DateOnly.FromDateTime(DateTime.Now));
             RuleFor(task => task.CompletedAt)
-                .Empty().When(task => !task.IsCompleted)
+                .Empty().When(task => task.State != TaskState.Completed)
                 .WithMessage("CompletedAt must be empty when the task is not completed.");
         }
     }

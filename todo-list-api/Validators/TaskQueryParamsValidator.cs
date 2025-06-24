@@ -1,6 +1,7 @@
 using System.Data;
 using FluentValidation;
 using TodoListApi.Application.Dtos;
+using TodoListApi.Types;
 namespace TodoListApi.Application.Validators;
 public class TaskQueryParamsValidator : AbstractValidator<TaskQueryParams>
 {
@@ -22,9 +23,9 @@ public class TaskQueryParamsValidator : AbstractValidator<TaskQueryParams>
             .When(x => !string.IsNullOrEmpty(x.SortBy))
             .WithMessage("SortBy must be either 'dueDate' or 'title'.");
 
-        RuleFor(x => x.IsCompleted)
-            .Must(value => value == true || value == false)
-            .When(x => x.IsCompleted.HasValue)
+        RuleFor(x => x.State)
+            .Must(value => value == TaskState.Completed || value == TaskState.InProgress || value == TaskState.NotStarted || value == null)
+            .When(x => x.State is not null)
             .WithMessage("IsCompleted must be either true or false.");
     }
 }

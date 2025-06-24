@@ -11,7 +11,7 @@ using TodoListApi.Data;
 namespace TodoListApi.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250624101820_InitialCreate")]
+    [Migration("20250624112056_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -38,11 +38,11 @@ namespace TodoListApi.Migrations
                     b.Property<DateOnly?>("DueDate")
                         .HasColumnType("TEXT");
 
-                    b.Property<bool>("IsCompleted")
-                        .HasColumnType("INTEGER");
-
                     b.Property<DateOnly?>("LastModifiedAt")
                         .HasColumnType("TEXT");
+
+                    b.Property<int?>("State")
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Title")
                         .HasColumnType("TEXT");

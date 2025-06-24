@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using TodoListApi.Application.Dtos;
 using TodoListApi.Data;
 using TodoListApi.Domain;
+using TodoListApi.Types;
 
 namespace TodoListApi.Application.Services;
 
@@ -25,7 +26,7 @@ public class TaskService : ITaskService
         var pageSize = task.PageSize;
         var sortBy = task.SortBy;
         var sortOrder = task.SortOrder;
-        var isCompleted = task.IsCompleted;
+        var state = task.State;
         var title = task.Title;
         var dueDateFrom = task.DueDateFrom;
         var dueDateTo = task.DueDateTo;
@@ -58,9 +59,9 @@ public class TaskService : ITaskService
             };
 
         }
-        if (isCompleted.HasValue)
+        if (state is not null)
         {
-            result = result.Where(t => t.IsCompleted == isCompleted.Value);
+            result = result.Where(t => t.State == state);
         }
         if (!string.IsNullOrEmpty(title))
         {
@@ -121,7 +122,7 @@ public class TaskService : ITaskService
         await _context.SaveChangesAsync();
     }
 
-    public async Task<TaskStatisticsDto> GetStatisticsAsync(DateOnly? fromDate = null, DateOnly? toDate = null, string title = "", bool? isCompleted = null)
+    public async Task<TaskStatisticsDto> GetStatisticsAsync(DateOnly? fromDate = null, DateOnly? toDate = null, string title = "", TaskState? taskState = TaskState.NotStarted)
     {
         var allTasks = _context.Tasks.AsQueryable();
         if (fromDate != null)
@@ -132,23 +133,24 @@ public class TaskService : ITaskService
         {
             allTasks = allTasks.Where(t => t.CreatedAt <= toDate.Value);
         }
-        if (isCompleted.HasValue)
+        if (taskState is not null)
         {
-            allTasks = allTasks.Where(t => t.IsCompleted == isCompleted.Value);
+            allTasks = allTasks.Where(t => t.State == taskState);
         }
         if (!string.IsNullOrEmpty(title))
         {
             allTasks = allTasks.Where(t => t.Title.ToLower().Contains(title.ToLower()));
         }
         var totalTasks = await allTasks.CountAsync();
-        var completedTasks = await allTasks.CountAsync(t => t.IsCompleted);
-        var pendingTasks = totalTasks - completedTasks;
-
+        var completedTasks = await allTasks.CountAsync(t => t.State == TaskState.Completed);
+        var inProgressTasks = await allTasks.CountAsync(t => t.State == TaskState.InProgress);
+        var notStartedTasks = totalTasks - completedTasks - inProgressTasks;
         return new TaskStatisticsDto
         {
             TotalTasks = totalTasks,
             CompletedTasks = completedTasks,
-            PendingTasks = pendingTasks,
+            InProgressTasks = inProgressTasks,
+            NotStartedTasks = notStartedTasks
         };
     }
 
@@ -159,7 +161,9 @@ public class TaskService : ITaskService
         {
             throw new KeyNotFoundException("Task not found");
         }
-        taskItem.IsCompleted = true;
+        taskItem.State = TaskState.Completed;
+        taskItem.CompletedAt = DateOnly.FromDateTime(DateTime.Now);
+        taskItem.LastModifiedAt = DateOnly.FromDateTime(DateTime.Now);
         _context.Tasks.Update(taskItem);
         return _context.SaveChangesAsync();
     }
@@ -173,7 +177,8 @@ public class TaskService : ITaskService
         }
         existingTask.Title = taskItem.Title ?? existingTask.Title;
         existingTask.Description = taskItem.Description ?? existingTask.Description;
-        existingTask.IsCompleted = taskItem.IsCompleted ?? existingTask.IsCompleted;
+        existingTask.State = taskItem.State ?? existingTask.State;
+        existingTask.LastModifiedAt = DateOnly.FromDateTime(DateTime.Now);
 
         _context.Tasks.Update(existingTask);
         await _context.SaveChangesAsync();
@@ -197,7 +202,7 @@ public class TaskService : ITaskService
         var pageSize = overdueTasksDto.PageSize ?? 10;
 
         var overdueTasks = await _context.Tasks
-            .Where(t => t.DueDate < DateOnly.FromDateTime(DateTime.Now) && !t.IsCompleted)
+            .Where(t => t.DueDate < DateOnly.FromDateTime(DateTime.Now) && t.State != TaskState.Completed)
             .Skip((int)((page - 1) * pageSize)).Take(pageSize)
             .ToListAsync();
         return overdueTasks;
@@ -210,8 +215,14 @@ public class TaskService : ITaskService
         {
             throw new KeyNotFoundException("Task not found");
         }
-        taskItem.IsCompleted = !taskItem.IsCompleted;
-        if (taskItem.IsCompleted)
+        taskItem.State = taskItem.State switch
+        {
+            TaskState.Completed => TaskState.NotStarted,
+            TaskState.NotStarted => TaskState.Completed,
+            _ => taskItem.State
+        };
+
+        if (taskItem.State == TaskState.Completed)
         {
             taskItem.CompletedAt = DateOnly.FromDateTime(DateTime.Now);
         }

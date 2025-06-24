@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Http;
 using AutoMapper;
 using FluentValidation;
 using System.Threading.Tasks;
-
+using TodoListApi.Types;
 public static class TaskEndpoints
 {
     public static IEndpointRouteBuilder MapTaskEndpoints(this IEndpointRouteBuilder app)
@@ -64,13 +64,13 @@ public static class TaskEndpoints
             {
                 return Results.BadRequest("FromDate cannot be greater than ToDate.");
             }
-            var stats = await service.GetStatisticsAsync(fromDate: statisticsQueryParams.FromDate, toDate: statisticsQueryParams.ToDate, title: statisticsQueryParams.Title, isCompleted: statisticsQueryParams.IsCompleted);
+            var stats = await service.GetStatisticsAsync(fromDate: statisticsQueryParams.FromDate, toDate: statisticsQueryParams.ToDate, title: statisticsQueryParams.Title, state: statisticsQueryParams.State);
             return Results.Ok(stats);
         });
 
         tasks.MapGet("/completed", async ([AsParameters] TaskQueryParams taskQueryParams, ITaskService service) =>
         {
-            taskQueryParams.IsCompleted = true;
+            taskQueryParams.State = TaskState.Completed;
             var completedTasks = await service.GetAllTasksAsync(taskQueryParams);
             return Results.Ok(completedTasks);
         });

@@ -9,6 +9,8 @@ namespace TodoListApi.Application.Dtos
         [Required]
         public int CompletedTasks { get; set; }
         [Required]
-        public int PendingTasks { get; set; }
+        public int InProgressTasks { get; set; }
+        [Required]
+        public int NotStartedTasks { get; set; }
     }
 }

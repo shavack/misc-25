@@ -2,7 +2,7 @@ export interface Task {
   id: number
   title: string
   description: string
-  isCompleted: boolean,
+  state: number // 0: Pending, 1: In progress, 2: Completed
   createdAt: Date
   updatedAt: Date | null
   completedAt: Date | null
@@ -16,3 +16,4 @@ export interface PaginatedResponse<T> {
   totalPages: number
   items: T[]
 }
+export type TaskState = 'Pending' | 'In progress' | 'Completed';

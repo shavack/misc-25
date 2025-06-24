@@ -12,7 +12,7 @@ export default function Column({ id, title, tasks }: ColumnProps) {
   const { setNodeRef } = useDroppable({ id })
 
   return (
-    <div ref={setNodeRef} className="w-1/2 p-4 bg-gray-800 rounded-xl">
+    <div ref={setNodeRef} className="p-6 bg-gray-800 rounded-xl">
       <h2 className="text-xl font-bold mb-4">{title}</h2>
       <div className="flex flex-col gap-2">
         {tasks.map((task) => (

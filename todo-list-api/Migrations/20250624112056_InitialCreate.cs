@@ -19,7 +19,7 @@ namespace TodoListApi.Migrations
                         .Annotation("Sqlite:Autoincrement", true),
                     Title = table.Column<string>(type: "TEXT", nullable: true),
                     Description = table.Column<string>(type: "TEXT", nullable: true),
-                    IsCompleted = table.Column<bool>(type: "INTEGER", nullable: false),
+                    State = table.Column<int>(type: "INTEGER", nullable: true),
                     CreatedAt = table.Column<DateOnly>(type: "TEXT", nullable: false),
                     CompletedAt = table.Column<DateOnly>(type: "TEXT", nullable: true),
                     DueDate = table.Column<DateOnly>(type: "TEXT", nullable: true),

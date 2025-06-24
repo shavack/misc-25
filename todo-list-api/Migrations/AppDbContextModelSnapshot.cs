@@ -35,11 +35,11 @@ namespace TodoListApi.Migrations
                     b.Property<DateOnly?>("DueDate")
                         .HasColumnType("TEXT");
 
-                    b.Property<bool>("IsCompleted")
-                        .HasColumnType("INTEGER");
-
                     b.Property<DateOnly?>("LastModifiedAt")
                         .HasColumnType("TEXT");
+
+                    b.Property<int?>("State")
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Title")
                         .HasColumnType("TEXT");

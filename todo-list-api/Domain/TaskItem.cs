@@ -1,5 +1,6 @@
 
 using System;
+using TodoListApi.Types;
 
 namespace TodoListApi.Domain
 {
@@ -8,7 +9,7 @@ namespace TodoListApi.Domain
         public int Id { get; set; }
         public string Title { get; set; }
         public string Description { get; set; }
-        public bool IsCompleted { get; set; }
+        public TaskState? State { get; set; } = null;
         public DateOnly CreatedAt { get; set; } = DateOnly.FromDateTime(DateTime.Now);
         public DateOnly? CompletedAt { get; set; }
 

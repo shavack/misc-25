@@ -6,6 +6,8 @@ using Moq;
 using Microsoft.EntityFrameworkCore;
 using TodoListApi.Application.Dtos;
 using System.Threading.Tasks;
+using TodoListApi.Types;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 
 public class TaskServiceTests
 {
@@ -85,7 +87,7 @@ public class TaskServiceTests
         await PopulateDatabase(service);
         var taskQueryParams = new TaskQueryParams
         {
-            IsCompleted = false,
+            State = TaskState.NotStarted,
         };
 
         var tasks = await service.GetAllTasksAsync(taskQueryParams);
@@ -111,14 +113,14 @@ public class TaskServiceTests
 
         var taskQueryParams = new TaskQueryParams
         {
-            IsCompleted = true,
+            State = TaskState.Completed,
             Page = 1,
             PageSize = 10
         };
         var completedTasks = await service.GetAllTasksAsync(taskQueryParams);
 
         Assert.Equal(3, completedTasks.Items.Count());
-        Assert.All(completedTasks.Items, task => Assert.True(task.IsCompleted));
+        Assert.All(completedTasks.Items, task => Assert.True(task.State == TaskState.Completed));
     }
 
     [Fact]
@@ -169,11 +171,11 @@ public class TaskServiceTests
 
         for (int i = 0; i < 5; i++)
         {
-            await service.AddTaskAsync(new TaskItem { Title = $"Task {i + 1}", Description = $"Description {i + 1}", IsCompleted = false, DueDate = DateOnly.FromDateTime(DateTime.Now).AddDays(-1) });
+            await service.AddTaskAsync(new TaskItem { Title = $"Task {i + 1}", Description = $"Description {i + 1}", State = TaskState.NotStarted, DueDate = DateOnly.FromDateTime(DateTime.Now).AddDays(-1) });
         }
         for (int i = 0; i < 5; i++)
         {
-            await service.AddTaskAsync(new TaskItem { Title = $"Task {i + 6}", Description = $"Description {i + 6}", IsCompleted = true, DueDate = DateOnly.FromDateTime(DateTime.Now).AddDays(1) });
+            await service.AddTaskAsync(new TaskItem { Title = $"Task {i + 6}", Description = $"Description {i + 6}", State = TaskState.Completed, DueDate = DateOnly.FromDateTime(DateTime.Now).AddDays(1) });
         }
 
         var overdueTasksDto = new OverdueTasksDto
@@ -184,7 +186,7 @@ public class TaskServiceTests
 
         var overdueTasks = await service.GetOverdueTasksAsync(overdueTasksDto);
         Assert.Equal(5, overdueTasks.Count);
-        Assert.All(overdueTasks, task => Assert.True(task.DueDate < DateOnly.FromDateTime(DateTime.Now) && !task.IsCompleted));
+        Assert.All(overdueTasks, task => Assert.True(task.DueDate < DateOnly.FromDateTime(DateTime.Now) && task.State != TaskState.Completed));
     }
 
     [Fact]
@@ -193,25 +195,25 @@ public class TaskServiceTests
         using var context = CreateInMemoryDbContext();
         var service = new TaskService(context);
 
-        var task = new TaskItem { Title = "Test Task", Description = "This is a test task." };
+        var task = new TaskItem { Title = "Test Task", Description = "This is a test task.", State = TaskState.NotStarted };
         var addedTask = await service.AddTaskAsync(task);
 
         // Initially, the task should not be completed
-        Assert.False(addedTask.IsCompleted);
+        Assert.Equal(TaskState.NotStarted, addedTask.State);
 
         // Toggle completion
         await service.ToggleCompletionAsync(addedTask.Id);
 
         // Now, the task should be completed
         var toggledTask = await service.GetTaskByIdAsync(addedTask.Id);
-        Assert.True(toggledTask.IsCompleted);
+        Assert.Equal(TaskState.Completed, toggledTask.State);
 
         // Toggle again to mark it as incomplete
         await service.ToggleCompletionAsync(toggledTask.Id);
 
         // Now, the task should not be completed again
         var finalTask = await service.GetTaskByIdAsync(toggledTask.Id);
-        Assert.False(finalTask.IsCompleted);
+        Assert.Equal(TaskState.NotStarted, finalTask.State);
     }
 
     [Fact]
@@ -230,7 +232,7 @@ public class TaskServiceTests
 
         var tasks = await service.GetAllTasksAsync(taskQueryParams);
 
-        Assert.Equal(2, tasks.Items.Count());
+        Assert.Equal(3, tasks.Items.Count());
         Assert.All(tasks.Items, task =>
         {
             Assert.NotNull(task.DueDate);
@@ -276,7 +278,7 @@ public class TaskServiceTests
             {
                 Title = $"Task {i + 1}",
                 Description = $"Description {i + 1}",
-                IsCompleted = i % 2 == 0,
+                State = i % 2 == 0 ? TaskState.Completed : TaskState.NotStarted,
                 DueDate = DateOnly.FromDateTime(DateTime.Now).AddDays(i)
             });
         }

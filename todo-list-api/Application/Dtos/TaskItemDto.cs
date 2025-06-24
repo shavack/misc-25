@@ -1,5 +1,6 @@
 using System;
 using System.ComponentModel.DataAnnotations;
+using TodoListApi.Types;
 
 namespace TodoListApi.Application.Dtos
 {
@@ -7,7 +8,7 @@ namespace TodoListApi.Application.Dtos
     {
         [Required]
         public required string Title { get; set; }
-        public bool IsCompleted { get; set; }
+        public TaskState State { get; set; }
         public string Description { get; set; }
         public DateOnly? CompletedAt { get; set; }
         public DateOnly? DueDate { get; set; } 
