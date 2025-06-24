@@ -20,10 +20,10 @@ namespace TodoListApi.Migrations
                     Title = table.Column<string>(type: "TEXT", nullable: true),
                     Description = table.Column<string>(type: "TEXT", nullable: true),
                     IsCompleted = table.Column<bool>(type: "INTEGER", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    CompletedAt = table.Column<DateTime>(type: "TEXT", nullable: true),
-                    DueDate = table.Column<DateTime>(type: "TEXT", nullable: true),
-                    LastModifiedAt = table.Column<DateTime>(type: "TEXT", nullable: true)
+                    CreatedAt = table.Column<DateOnly>(type: "TEXT", nullable: false),
+                    CompletedAt = table.Column<DateOnly>(type: "TEXT", nullable: true),
+                    DueDate = table.Column<DateOnly>(type: "TEXT", nullable: true),
+                    LastModifiedAt = table.Column<DateOnly>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {

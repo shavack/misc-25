@@ -10,9 +10,9 @@ public class TaskQueryParams
     public string SortBy { get; set; } = "title";
     public bool? IsCompleted { get; set; } = null;
     public string Title { get; set; }
-    public DateTime? FromDate { get; set; }
-    public DateTime? ToDate { get; set; }
+    public DateOnly? FromDate { get; set; }
+    public DateOnly? ToDate { get; set; }
 
-    public DateTime? DueDateFrom { get; set; }
-    public DateTime? DueDateTo { get; set; }
+    public DateOnly? DueDateFrom { get; set; }
+    public DateOnly? DueDateTo { get; set; }
 }

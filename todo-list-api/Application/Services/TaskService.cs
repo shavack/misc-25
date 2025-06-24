@@ -121,7 +121,7 @@ public class TaskService : ITaskService
         await _context.SaveChangesAsync();
     }
 
-    public async Task<TaskStatisticsDto> GetStatisticsAsync(DateTime? fromDate = null, DateTime? toDate = null, string title = "", bool? isCompleted = null)
+    public async Task<TaskStatisticsDto> GetStatisticsAsync(DateOnly? fromDate = null, DateOnly? toDate = null, string title = "", bool? isCompleted = null)
     {
         var allTasks = _context.Tasks.AsQueryable();
         if (fromDate != null)
@@ -197,7 +197,7 @@ public class TaskService : ITaskService
         var pageSize = overdueTasksDto.PageSize ?? 10;
 
         var overdueTasks = await _context.Tasks
-            .Where(t => t.DueDate < DateTime.Now && !t.IsCompleted)
+            .Where(t => t.DueDate < DateOnly.FromDateTime(DateTime.Now) && !t.IsCompleted)
             .Skip((int)((page - 1) * pageSize)).Take(pageSize)
             .ToListAsync();
         return overdueTasks;
@@ -211,6 +211,14 @@ public class TaskService : ITaskService
             throw new KeyNotFoundException("Task not found");
         }
         taskItem.IsCompleted = !taskItem.IsCompleted;
+        if (taskItem.IsCompleted)
+        {
+            taskItem.CompletedAt = DateOnly.FromDateTime(DateTime.Now);
+        }
+        else
+        {
+            taskItem.CompletedAt = null;
+        }
         _context.Tasks.Update(taskItem);
         await _context.SaveChangesAsync();
     }

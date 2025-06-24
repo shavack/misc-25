@@ -169,11 +169,11 @@ public class TaskServiceTests
 
         for (int i = 0; i < 5; i++)
         {
-            await service.AddTaskAsync(new TaskItem { Title = $"Task {i + 1}", Description = $"Description {i + 1}", IsCompleted = false, DueDate = DateTime.Now.AddDays(-1) });
+            await service.AddTaskAsync(new TaskItem { Title = $"Task {i + 1}", Description = $"Description {i + 1}", IsCompleted = false, DueDate = DateOnly.FromDateTime(DateTime.Now).AddDays(-1) });
         }
         for (int i = 0; i < 5; i++)
         {
-            await service.AddTaskAsync(new TaskItem { Title = $"Task {i + 6}", Description = $"Description {i + 6}", IsCompleted = true, DueDate = DateTime.Now.AddDays(1) });
+            await service.AddTaskAsync(new TaskItem { Title = $"Task {i + 6}", Description = $"Description {i + 6}", IsCompleted = true, DueDate = DateOnly.FromDateTime(DateTime.Now).AddDays(1) });
         }
 
         var overdueTasksDto = new OverdueTasksDto
@@ -184,7 +184,7 @@ public class TaskServiceTests
 
         var overdueTasks = await service.GetOverdueTasksAsync(overdueTasksDto);
         Assert.Equal(5, overdueTasks.Count);
-        Assert.All(overdueTasks, task => Assert.True(task.DueDate < DateTime.Now && !task.IsCompleted));
+        Assert.All(overdueTasks, task => Assert.True(task.DueDate < DateOnly.FromDateTime(DateTime.Now) && !task.IsCompleted));
     }
 
     [Fact]
@@ -224,8 +224,8 @@ public class TaskServiceTests
 
         var taskQueryParams = new TaskQueryParams
         {
-            DueDateFrom = DateTime.Now.AddDays(1),
-            DueDateTo = DateTime.Now.AddDays(3),
+            DueDateFrom = DateOnly.FromDateTime(DateTime.Now).AddDays(1),
+            DueDateTo = DateOnly.FromDateTime(DateTime.Now).AddDays(3),
         };
 
         var tasks = await service.GetAllTasksAsync(taskQueryParams);
@@ -234,7 +234,7 @@ public class TaskServiceTests
         Assert.All(tasks.Items, task =>
         {
             Assert.NotNull(task.DueDate);
-            Assert.InRange(task.DueDate.Value, DateTime.Now.AddDays(1), DateTime.Now.AddDays(3));
+            Assert.InRange(task.DueDate.Value, DateOnly.FromDateTime(DateTime.Now).AddDays(1), DateOnly.FromDateTime(DateTime.Now).AddDays(3));
         });
     }
 
@@ -277,7 +277,7 @@ public class TaskServiceTests
                 Title = $"Task {i + 1}",
                 Description = $"Description {i + 1}",
                 IsCompleted = i % 2 == 0,
-                DueDate = DateTime.Now.AddDays(i)
+                DueDate = DateOnly.FromDateTime(DateTime.Now).AddDays(i)
             });
         }
     }

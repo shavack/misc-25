@@ -23,22 +23,22 @@ namespace TodoListApi.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<DateTime?>("CompletedAt")
+                    b.Property<DateOnly?>("CompletedAt")
                         .HasColumnType("TEXT");
 
-                    b.Property<DateTime>("CreatedAt")
+                    b.Property<DateOnly>("CreatedAt")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Description")
                         .HasColumnType("TEXT");
 
-                    b.Property<DateTime?>("DueDate")
+                    b.Property<DateOnly?>("DueDate")
                         .HasColumnType("TEXT");
 
                     b.Property<bool>("IsCompleted")
                         .HasColumnType("INTEGER");
 
-                    b.Property<DateTime?>("LastModifiedAt")
+                    b.Property<DateOnly?>("LastModifiedAt")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Title")

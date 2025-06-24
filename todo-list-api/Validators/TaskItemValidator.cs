@@ -22,7 +22,7 @@ namespace TodoListApi.Application.Validators
             RuleFor(task => task.CompletedAt)
                 .NotEmpty().When(task => task.IsCompleted)
                 .WithMessage("CompletedAt must be provided when the task is completed.")
-                .Must(date => date == null || date <= DateTime.Now);
+                .Must(date => date == null || date <= DateOnly.FromDateTime(DateTime.Now));
             RuleFor(task => task.CompletedAt)
                 .Empty().When(task => !task.IsCompleted)
                 .WithMessage("CompletedAt must be empty when the task is not completed.");

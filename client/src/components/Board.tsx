@@ -1,6 +1,6 @@
 import { DndContext, closestCenter} from '@dnd-kit/core'
 import Column from './Column'
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import axios from 'axios'
 import { useTasks } from '../hooks/useTasks'
 import type { DragEndEvent } from '@dnd-kit/core'
@@ -31,8 +31,9 @@ export default function Board() {
     return (
     <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
         <div className="flex gap-4">
-        <Column id="Pending" title="Pending tasks" tasks={pendingTasks} />
-        <Column id="Completed" title="Completed tasks" tasks={completedTasks} />
+        <Column id="Backlog" title="Backlog" tasks={tasks} />
+        <Column id="In progress" title="In progress" tasks={pendingTasks} />
+        <Column id="Completed" title="Completed" tasks={completedTasks} />
         </div>
     </DndContext>
     )

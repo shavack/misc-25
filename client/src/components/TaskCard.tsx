@@ -23,7 +23,11 @@ export default function TaskCard({ task }: { task: Task }) {
         >
           {task.isCompleted ? 'Completed' : 'Pending'}
         </span>
+
       </div>
+        <p>created date: {task.dueDate ? task.createdAt.toString() : ''}</p>
+        <p>due date: {task.dueDate ? task.dueDate.toString() : ''}</p>
+        <p>completed at: {task.completedAt ? task.completedAt.toString() : ''}</p>
       <p className="text-gray-400">{task.description}</p>
     </div>
   )
