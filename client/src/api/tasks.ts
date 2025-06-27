@@ -10,3 +10,8 @@ export const patchTask = async (task: Partial<Task> & { id: number }) => {
   const response = await axios.patch(`http://localhost:5000/tasks/${task.id}`, task)
   return response.data
 }
+
+export const createTask = async (task: Partial<Task>) => {
+  const response = await axios.post(`http://localhost:5000/tasks/`, task)
+  return response.data
+}

@@ -6,7 +6,7 @@ export interface Task {
   createdAt: Date
   updatedAt: Date | null
   completedAt: Date | null
-  dueDate: Date | null
+  dueDate: string | Date
 }
 
 export interface PaginatedResponse<T> {
