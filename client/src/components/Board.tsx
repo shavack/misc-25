@@ -1,11 +1,28 @@
-import { DndContext, closestCenter} from '@dnd-kit/core'
+import { 
+  DndContext,
+  closestCenter,
+  DragOverlay,
+  PointerSensor,
+  useSensor,
+  useSensors } from '@dnd-kit/core'
 import Column from './Column'
 import { useTasks, usePatchTask } from '../hooks/useTasks'
-import type { DragEndEvent } from '@dnd-kit/core'
+import type { DragEndEvent, } from '@dnd-kit/core'
 import ThemeSelector from './ThemeSelector'
+import TaskCard from "./TaskCard"
+import { useState } from "react"
+import {type Task} from '../dto/types'
+
 
 export default function Board() {
     const { data, isLoading, error } = useTasks()
+    const [activeTask, setActiveTask] = useState<Task | null>(null)
+
+    const sensors = useSensors(
+      useSensor(PointerSensor, {
+        activationConstraint: { distance: 5 }
+      })
+    )
 
     const mutation = usePatchTask()
     const handleDragEnd = (event: DragEndEvent) => {
@@ -24,13 +41,24 @@ export default function Board() {
     const completedTasks = tasks.filter((t) => t.state === 2)
 
     return (
-    <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+    <DndContext 
+      sensors = {sensors} 
+      collisionDetection={closestCenter} 
+      onDragStart={(event) => {
+        const task = tasks.find((t) => t.id == event.active.id)
+        setActiveTask(task || null)
+    }} 
+      onDragEnd={handleDragEnd}
+      onDragCancel = {() => setActiveTask(null)}>
         <ThemeSelector />
         <div className="grid grid-cols-3 gap-4 p-4">
         <Column id="Backlog" title="Backlog" tasks={notStartedTasks} />
         <Column id="In progress" title="In progress" tasks={pendingTasks} />
         <Column id="Completed" title="Completed" tasks={completedTasks} />
         </div>
+        <DragOverlay>
+          {activeTask ? <TaskCard task={activeTask} /> : null}
+        </DragOverlay>
     </DndContext>
     )
 }
