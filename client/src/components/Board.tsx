@@ -51,7 +51,7 @@ export default function Board() {
       onDragEnd={handleDragEnd}
       onDragCancel = {() => setActiveTask(null)}>
         <ThemeSelector />
-        <div className="grid grid-cols-3 gap-4 p-4">
+        <div className="flex gap-4 w-full px-4">
         <Column id="Backlog" title="Backlog" tasks={notStartedTasks} />
         <Column id="In progress" title="In progress" tasks={pendingTasks} />
         <Column id="Completed" title="Completed" tasks={completedTasks} />

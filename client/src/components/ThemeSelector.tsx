@@ -5,6 +5,12 @@ export default function ThemeSelector() {
   const { theme, setTheme } = useTheme()
 
   return (
+    <>
+    <div>
+      <label htmlFor="title" className="text-sm font-medium mb-1">
+        Theme 
+      </label>
+    </div>
     <select
       className="p-2 rounded-md"
       value={theme}
@@ -16,5 +22,6 @@ export default function ThemeSelector() {
         </option>
       ))}
     </select>
+    </>
   )
 }

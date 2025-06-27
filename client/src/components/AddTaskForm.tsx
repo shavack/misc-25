@@ -23,7 +23,7 @@ export default function AddTaskForm()
     }
     return (
     <form onSubmit={handleSubmit} className="mb-4 flex gap-2">
-    <div className="flex flex-col w-1/3">
+    <div className="flex flex-col">
         <label htmlFor="title" className="text-sm font-medium mb-1">
         Title
         </label>
@@ -36,7 +36,7 @@ export default function AddTaskForm()
         required
         />
     </div>
-    <div className="flex flex-col w-1/3">
+    <div className="flex flex-col">
         <label htmlFor="description" className="text-sm font-medium mb-1">
         Description
         </label>
@@ -61,13 +61,14 @@ export default function AddTaskForm()
         className="p-2 rounded border"
         />
     </div>
-
-    <button
-        type="submit"
-        className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 h-[42px]"
-    >
-        Add Task
-    </button>
+    <div className="flex flex-col">
+        <button
+            type="submit"
+            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 h-[42px]"
+        >
+            Add Task
+        </button>
+    </div>  
     </form>
   )
 }
