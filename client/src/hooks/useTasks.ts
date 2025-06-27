@@ -1,10 +1,10 @@
 import { useQuery } from '@tanstack/react-query'
 import { getTasks, patchTask, createTask } from '../api/tasks'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import type { PaginatedResponse, Task } from '../dto/types'
+import type { Task } from '../dto/types'
 
 export const useTasks = () => {
-  return useQuery<PaginatedResponse<Task>>({
+  return useQuery<Task[]>({
     queryKey: ['tasks'],
     queryFn: getTasks,
   })

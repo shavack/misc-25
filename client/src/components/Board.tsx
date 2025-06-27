@@ -38,7 +38,7 @@ export default function Board() {
 
     if (isLoading) return <p>Loading...</p>
     if (error) return <p>Error loading tasks</p>
-    const tasks = data?.items ?? []
+    const tasks = data ?? []
     const notStartedTasks = tasks.filter((t) => t.state == 0 || t.state == null)
     const pendingTasks = tasks.filter((t) => t.state == 1)
     const completedTasks = tasks.filter((t) => t.state === 2)
@@ -57,7 +57,7 @@ export default function Board() {
         <div className="flex gap-4 w-full px-4">
         <Column id="Backlog" title="Backlog" tasks={notStartedTasks}/>
         <Column id="In progress" title="In progress" tasks={pendingTasks}  />
-        <Column id="Completed" title="Completed" tasks={completedTasks}  />
+        <Column id="Completed" title="Completed" tasks={completedTasks} />
         </div>
         <DragOverlay>
           {activeTask ? <TaskCard task={activeTask} /> : null}
