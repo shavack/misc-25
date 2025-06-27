@@ -12,11 +12,14 @@ import ThemeSelector from './ThemeSelector'
 import TaskCard from "./TaskCard"
 import { useState } from "react"
 import {type Task} from '../dto/types'
-
+import { useTheme } from "../contexts/ThemeContext"
+import { themes } from '../themes'
 
 export default function Board() {
     const { data, isLoading, error } = useTasks()
     const [activeTask, setActiveTask] = useState<Task | null>(null)
+    const { theme } = useTheme()
+    const currentTheme = themes[theme]
 
     const sensors = useSensors(
       useSensor(PointerSensor, {
@@ -52,9 +55,9 @@ export default function Board() {
       onDragCancel = {() => setActiveTask(null)}>
         <ThemeSelector />
         <div className="flex gap-4 w-full px-4">
-        <Column id="Backlog" title="Backlog" tasks={notStartedTasks} />
-        <Column id="In progress" title="In progress" tasks={pendingTasks} />
-        <Column id="Completed" title="Completed" tasks={completedTasks} />
+        <Column id="Backlog" title="Backlog" tasks={notStartedTasks}/>
+        <Column id="In progress" title="In progress" tasks={pendingTasks}  />
+        <Column id="Completed" title="Completed" tasks={completedTasks}  />
         </div>
         <DragOverlay>
           {activeTask ? <TaskCard task={activeTask} /> : null}

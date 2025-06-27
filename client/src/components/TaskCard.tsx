@@ -16,8 +16,8 @@ export default function TaskCard({ task }: { task: Task }) {
       ref={setNodeRef}
       {...listeners}
       {...attributes}
-      className={`${style.card} ${style.text} p-4 rounded-xl border border-white/20 ${
-        task.dueDate && new Date(task.dueDate) < new Date() && task.state != 2 ? 'bg-red-500' : 'bg-gray-800'
+      className={`p-4 rounded-xl border border-white/20 ${
+        task.dueDate && new Date(task.dueDate) < new Date() && task.state != 2 ? `${style.overdue}` : `${style.card}`
       }`}
         >
       <div className="flex justify-between">
@@ -27,13 +27,13 @@ export default function TaskCard({ task }: { task: Task }) {
             (() => {
               switch (task.state) {
                 case 0:
-                  return 'bg-gray-300 text-gray-900'
+                  return `${style.notStartedBackground} ${style.notStartedText}`
                 case 1:
-                  return 'bg-yellow-300 text-yellow-900'
+                  return `${style.inProgressBackground} ${style.inProgressText}`
                 case 2:
-                  return 'bg-green-300 text-green-900'
+                  return `${style.completedBackground} ${style.completedText}`
                 default:
-                  return 'bg-gray-200 text-gray-700'
+                  return `${style.notStartedBackground} ${style.notStartedText}`
               }
             })()
           }`}

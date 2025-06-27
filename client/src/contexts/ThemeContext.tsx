@@ -1,5 +1,7 @@
 import { createContext, useContext, useState, type ReactNode } from 'react'
-import { themes, type ThemeName } from '../themes'
+import { themes } from '../themes'
+
+type ThemeName = keyof typeof themes
 
 type ThemeContextType = {
   theme: ThemeName
@@ -9,10 +11,10 @@ type ThemeContextType = {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined)
 
 export const ThemeProvider = ({ children }: { children: ReactNode }) => {
-  const [theme, setTheme] = useState<ThemeName>('pastel')
+  const [theme, setTheme] = useState<ThemeName>('dark')
   return (
     <ThemeContext.Provider value={{ theme, setTheme }}>
-      <div className={`${themes[theme].background} min-h-screen`}>
+      <div className={`${themes[theme].background} min-h-screen w-full`}>
         {children}
       </div>
     </ThemeContext.Provider>
