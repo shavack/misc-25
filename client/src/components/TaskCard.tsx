@@ -16,14 +16,14 @@ export default function TaskCard({ task }: { task: Task }) {
       ref={setNodeRef}
       {...listeners}
       {...attributes}
-      className={`p-4 rounded-xl border border-white/20 ${
+      className={`p-4 rounded-xl border border-white/20 ${style.text} ${
         task.dueDate && new Date(task.dueDate) < new Date() && task.state != 2 ? `${style.overdue}` : `${style.card}`
       }`}
         >
       <div className="flex justify-between">
-        <h3 className="font-bold text-white">{task.title}</h3>
+        <h3 className={`font-bold ${style.text}`}>{task.title}</h3>
         <span
-          className={`text-xs px-2 py-1 rounded-full ${
+          className={`text-xs px-2 py-1 rounded-full  ${
             (() => {
               switch (task.state) {
                 case 0:
@@ -55,8 +55,8 @@ export default function TaskCard({ task }: { task: Task }) {
       </div>
         <p>created date: {task.dueDate ? task.createdAt.toString() : ''}</p>
         <p>due date: {task.dueDate ? task.dueDate.toString() : ''}</p>
-        <p>completed at: {task.completedAt ? task.completedAt.toString() : ''}</p>
-      <p className="text-gray-400">{task.description}</p>
+        {task.completedAt != null ? <p>completed at: {task.completedAt ? task.completedAt.toString() : ''}</p> : null }
+      <p className={`${style.text}`}>{task.description}</p>
     </div>
   )
 }
