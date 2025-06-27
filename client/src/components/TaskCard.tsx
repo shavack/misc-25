@@ -1,18 +1,22 @@
 import type { Task } from '../dto/types'
 import { useDraggable } from '@dnd-kit/core'
+import { useTheme } from '../contexts/ThemeContext'
+import { themes } from '../themes'
 
 export default function TaskCard({ task }: { task: Task }) {
   const { attributes, listeners, setNodeRef } = useDraggable({
     id: task.id,
     data: { status: task.state == 2 ? 'Completed' : 'Pending' },
   })
+  const { theme } = useTheme()
+  const style = themes[theme]
 
   return (
     <div
       ref={setNodeRef}
       {...listeners}
       {...attributes}
-      className={`p-4 rounded-xl border border-white/20 ${
+      className={`${style.card} ${style.text} p-4 rounded-xl border border-white/20 ${
         task.dueDate && new Date(task.dueDate) < new Date() && task.state != 2 ? 'bg-red-500' : 'bg-gray-800'
       }`}
         >

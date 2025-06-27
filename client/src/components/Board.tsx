@@ -2,6 +2,7 @@ import { DndContext, closestCenter} from '@dnd-kit/core'
 import Column from './Column'
 import { useTasks, usePatchTask } from '../hooks/useTasks'
 import type { DragEndEvent } from '@dnd-kit/core'
+import ThemeSelector from './ThemeSelector'
 
 export default function Board() {
     const { data, isLoading, error } = useTasks()
@@ -24,6 +25,7 @@ export default function Board() {
 
     return (
     <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+        <ThemeSelector />
         <div className="flex gap-4">
         <Column id="Backlog" title="Backlog" tasks={notStartedTasks} />
         <Column id="In progress" title="In progress" tasks={pendingTasks} />
