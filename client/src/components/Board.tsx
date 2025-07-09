@@ -12,10 +12,12 @@ import ThemeSelector from './ThemeSelector'
 import TaskCard from "./TaskCard"
 import { useState } from "react"
 import {type Task} from '../dto/types'
+import EditTaskModal from './EditTaskModal'
 
 export default function Board() {
     const { data, isLoading, error } = useTasks()
     const [activeTask, setActiveTask] = useState<Task | null>(null)
+    const [taskBeingEdited, setTaskBeingEdited] = useState<Task | null>(null)
 
     const sensors = useSensors(
       useSensor(PointerSensor, {
@@ -39,6 +41,10 @@ export default function Board() {
     const pendingTasks = tasks.filter((t) => t.state == 1)
     const completedTasks = tasks.filter((t) => t.state === 2)
 
+    const handleEditTask = (task: Task) => {
+      setTaskBeingEdited(task)
+    }
+
     return (
     <DndContext
       sensors = {sensors} 
@@ -51,13 +57,19 @@ export default function Board() {
       onDragCancel = {() => setActiveTask(null)}>
         <ThemeSelector />
         <div className="flex gap-4 w-full px-4">
-        <Column id="Backlog" title={`Backlog ${notStartedTasks.length}/${tasks.length}`} tasks={notStartedTasks}/>
-        <Column id="In progress" title={`In progress ${pendingTasks.length}/${tasks.length}`} tasks={pendingTasks}  />
-        <Column id="Completed" title={`Completed ${completedTasks.length}/${tasks.length}`} tasks={completedTasks} />
+        <Column id="Backlog" title={`Backlog ${notStartedTasks.length}/${tasks.length}`} tasks={notStartedTasks} onEdit={(task) => setTaskBeingEdited(task)} />
+        <Column id="In progress" title={`In progress ${pendingTasks.length}/${tasks.length}`} tasks={pendingTasks} onEdit={(task) => setTaskBeingEdited(task)} />
+        <Column id="Completed" title={`Completed ${completedTasks.length}/${tasks.length}`} tasks={completedTasks} onEdit={(task) => setTaskBeingEdited(task)} />
         </div>
         <DragOverlay>
           {activeTask ? <TaskCard task={activeTask} /> : null}
         </DragOverlay>
+        {taskBeingEdited && (
+        <EditTaskModal
+          task={taskBeingEdited}
+          onClose={() => setTaskBeingEdited(null)}
+        />
+        )}
     </DndContext>
     )
 }

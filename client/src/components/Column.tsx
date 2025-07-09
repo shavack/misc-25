@@ -8,9 +8,10 @@ interface ColumnProps {
   id: string
   title: string
   tasks: Task[],
+  onEdit: (task: Task) => void
 }
 
-export default function Column({ id, title, tasks }: ColumnProps) {
+export default function Column({ id, title, tasks, onEdit }: ColumnProps) {
   const { setNodeRef } = useDroppable({ id })
   const { theme } = useTheme()
   const style = themes[theme]
@@ -20,7 +21,7 @@ export default function Column({ id, title, tasks }: ColumnProps) {
       <h2 className="text-xl font-bold mb-4">{title}</h2>
       <div className="flex flex-col gap-2">
         {tasks.map((task) => (
-          <TaskCard key={task.id} task={task} />
+          <TaskCard key={task.id} task={task} onEdit={onEdit}/>
         ))}
       </div>
     </div>

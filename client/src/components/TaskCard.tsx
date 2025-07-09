@@ -3,7 +3,7 @@ import { useDraggable } from '@dnd-kit/core'
 import { useTheme } from '../contexts/ThemeContext'
 import { themes } from '../themes'
 
-export default function TaskCard({ task }: { task: Task }) {
+export default function TaskCard({ task, onEdit }: { task: Task, onEdit?: (task: Task) => void }) {
   const { attributes, listeners, setNodeRef } = useDraggable({
     id: task.id,
     data: { status: task.state == 2 ? 'Completed' : 'Pending' },
@@ -57,6 +57,11 @@ export default function TaskCard({ task }: { task: Task }) {
         <p>due date: {task.dueDate ? task.dueDate.toString() : ''}</p>
         {task.completedAt != null ? <p>completed at: {task.completedAt ? task.completedAt.toString() : ''}</p> : null }
       <p className={`${style.text}`}>{task.description}</p>
+      <button
+        onClick={() => onEdit && onEdit(task)}
+        className="text-sm text-blue-400 hover:underline ml-auto flex justify-end mb-2">
+      ✏️ Edit
+      </button>
     </div>
   )
 }
