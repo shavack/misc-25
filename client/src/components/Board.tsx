@@ -11,10 +11,11 @@ import type { DragEndEvent, } from '@dnd-kit/core'
 import ThemeSelector from './ThemeSelector'
 import TaskCard from "./TaskCard"
 import { useState } from "react"
-import {type Task} from '../dto/types'
+import {type Task, type TaskState} from '../dto/types'
 import EditTaskModal from './modals/EditTaskModal'
 import DeleteTaskModal from './modals/DeleteTaskModal'
 import { sortOptions, type SortOption } from '../constants/sortOptions'
+import { taskStateMap }  from '../dto/types'
 
 export default function Board() {
     const { data, isLoading, error } = useTasks()
@@ -22,6 +23,13 @@ export default function Board() {
     const [taskBeingEdited, setTaskBeingEdited] = useState<Task | null>(null)
     const [taskBeingDeleted, setTaskBeingDeleted] = useState<Task | null>(null)
     const [sortOption, setSortOption] = useState<SortOption>('titleAsc')
+    const [titleFilter, setTitleFilter] = useState("")
+    const [descriptionFilter, setDescriptionFilter] = useState("")
+    const [statusFilter, setStatusFilter] = useState<TaskState | null>(null)
+    const [createdFrom, setCreatedFrom] = useState("")
+    const [createdTo, setCreatedTo] = useState("")
+    const [dueFrom, setDueFrom] = useState("")
+    const [dueTo, setDueTo] = useState("")
 
     const sensors = useSensors(
       useSensor(PointerSensor, {
@@ -41,7 +49,27 @@ export default function Board() {
     if (isLoading) return <p>Loading...</p>
     if (error) return <p>Error loading tasks</p>
     const tasks = data ?? []
-    const sortedTasks = [...tasks].sort((a, b) => {
+
+    const filteredTasks = tasks.filter((task) => {
+      const matchesTitle = task.title.toLowerCase().includes(titleFilter.toLowerCase())
+      const matchesDescription = task.description && task.description.toLowerCase().includes(descriptionFilter.toLowerCase())
+      const matchesStatus = statusFilter === null || task.state === taskStateMap[statusFilter]
+
+      const created = new Date(task.createdAt)
+      const due = task.dueDate ? new Date(task.dueDate) : null
+
+      const createdValid =
+        (!createdFrom || created >= new Date(createdFrom)) &&
+        (!createdTo || created <= new Date(createdTo))
+
+      const dueValid =
+        (!dueFrom || (due && due >= new Date(dueFrom))) &&
+        (!dueTo || (due && due <= new Date(dueTo)))
+
+      return matchesTitle && matchesDescription && matchesStatus && createdValid && dueValid
+    })
+
+    const sortedTasks = [...filteredTasks].sort((a, b) => {
       switch (sortOption) {
         case 'titleAsc':
           return a.title.localeCompare(b.title)
@@ -83,6 +111,82 @@ export default function Board() {
               <option key={opt.value} value={opt.value}>{opt.label}</option>
             ))}
           </select>
+        </div>
+        <div className="grid grid-cols-4 gap-4 mb-6">
+
+          <div className="flex flex-col">
+            <label className="text-sm font-medium mb-1">Filter by title</label>
+            <input
+              type="text"
+              value={titleFilter}
+              onChange={(e) => setTitleFilter(e.target.value)}
+              className="p-2 rounded border"
+            />
+          </div>
+
+          <div className="flex flex-col">
+            <label className="text-sm font-medium mb-1">Filter by description</label>
+            <input
+              type="text"
+              value={descriptionFilter}
+              onChange={(e) => setDescriptionFilter(e.target.value)}
+              className="p-2 rounded border"
+            />
+          </div>
+
+          <div className="flex flex-col">
+            <label className="text-sm font-medium mb-1">Status</label>
+            <select
+              value={statusFilter ?? ""}
+              onChange={(e) => setStatusFilter(e.target.value === "" ? null : e.target.value as TaskState)}
+              className="p-2 rounded border"
+            >
+              <option value="">All statuses</option>
+              <option value="Pending">Not Started</option>
+              <option value="In progress">In Progress</option>
+              <option value="Completed">Completed</option>
+            </select>
+          </div>
+
+          <div className="flex flex-col">
+            <label className="text-sm font-medium mb-1">Created from</label>
+            <input
+              type="date"
+              value={createdFrom}
+              onChange={(e) => setCreatedFrom(e.target.value)}
+              className="p-2 rounded border"
+            />
+          </div>
+
+          <div className="flex flex-col">
+            <label className="text-sm font-medium mb-1">Created to</label>
+            <input
+              type="date"
+              value={createdTo}
+              onChange={(e) => setCreatedTo(e.target.value)}
+              className="p-2 rounded border"
+            />
+          </div>
+
+          <div className="flex flex-col">
+            <label className="text-sm font-medium mb-1">Due date from</label>
+            <input
+              type="date"
+              value={dueFrom}
+              onChange={(e) => setDueFrom(e.target.value)}
+              className="p-2 rounded border"
+            />
+        </div>
+
+        <div className="flex flex-col">
+          <label className="text-sm font-medium mb-1">Due date to</label>
+          <input
+            type="date"
+            value={dueTo}
+            onChange={(e) => setDueTo(e.target.value)}
+            className="p-2 rounded border"
+          />
+        </div>
         </div>
 
         <div className="flex gap-4 w-full px-4">

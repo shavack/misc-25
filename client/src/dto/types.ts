@@ -17,3 +17,9 @@ export interface PaginatedResponse<T> {
   items: T[]
 }
 export type TaskState = 'Pending' | 'In progress' | 'Completed';
+
+export const taskStateMap: Record<TaskState, number> = {
+  'Pending': 0,
+  'In progress': 1,
+  'Completed': 2
+}
