@@ -9,9 +9,10 @@ interface ColumnProps {
   title: string
   tasks: Task[],
   onEdit: (task: Task) => void
+  onDelete?: (task: Task) => void
 }
 
-export default function Column({ id, title, tasks, onEdit }: ColumnProps) {
+export default function Column({ id, title, tasks, onEdit, onDelete }: ColumnProps) {
   const { setNodeRef } = useDroppable({ id })
   const { theme } = useTheme()
   const style = themes[theme]
@@ -21,7 +22,7 @@ export default function Column({ id, title, tasks, onEdit }: ColumnProps) {
       <h2 className="text-xl font-bold mb-4">{title}</h2>
       <div className="flex flex-col gap-2">
         {tasks.map((task) => (
-          <TaskCard key={task.id} task={task} onEdit={onEdit}/>
+          <TaskCard key={task.id} task={task} onEdit={onEdit} onDelete= {onDelete}/>
         ))}
       </div>
     </div>

@@ -12,12 +12,14 @@ import ThemeSelector from './ThemeSelector'
 import TaskCard from "./TaskCard"
 import { useState } from "react"
 import {type Task} from '../dto/types'
-import EditTaskModal from './EditTaskModal'
+import EditTaskModal from './modals/EditTaskModal'
+import DeleteTaskModal from './modals/DeleteTaskModal'
 
 export default function Board() {
     const { data, isLoading, error } = useTasks()
     const [activeTask, setActiveTask] = useState<Task | null>(null)
     const [taskBeingEdited, setTaskBeingEdited] = useState<Task | null>(null)
+    const [taskBeingDeleted, setTaskBeingDeleted] = useState<Task | null>(null)
 
     const sensors = useSensors(
       useSensor(PointerSensor, {
@@ -54,9 +56,9 @@ export default function Board() {
       onDragCancel = {() => setActiveTask(null)}>
         <ThemeSelector />
         <div className="flex gap-4 w-full px-4">
-        <Column id="Backlog" title={`Backlog ${notStartedTasks.length}/${tasks.length}`} tasks={notStartedTasks} onEdit={(task) => setTaskBeingEdited(task)} />
-        <Column id="In progress" title={`In progress ${pendingTasks.length}/${tasks.length}`} tasks={pendingTasks} onEdit={(task) => setTaskBeingEdited(task)} />
-        <Column id="Completed" title={`Completed ${completedTasks.length}/${tasks.length}`} tasks={completedTasks} onEdit={(task) => setTaskBeingEdited(task)} />
+        <Column id="Backlog" title={`Backlog ${notStartedTasks.length}/${tasks.length}`} tasks={notStartedTasks} onEdit={(task) => setTaskBeingEdited(task)} onDelete = {(task) => setTaskBeingDeleted(task)}/>
+        <Column id="In progress" title={`In progress ${pendingTasks.length}/${tasks.length}`} tasks={pendingTasks} onEdit={(task) => setTaskBeingEdited(task)} onDelete = {(task) => setTaskBeingDeleted(task)}/>
+        <Column id="Completed" title={`Completed ${completedTasks.length}/${tasks.length}`} tasks={completedTasks} onEdit={(task) => setTaskBeingEdited(task)} onDelete = {(task) => setTaskBeingDeleted(task)}/>
         </div>
         <DragOverlay>
           {activeTask ? <TaskCard task={activeTask} /> : null}
@@ -65,6 +67,12 @@ export default function Board() {
         <EditTaskModal
           task={taskBeingEdited}
           onClose={() => setTaskBeingEdited(null)}
+        />
+        )}
+        {taskBeingDeleted && (
+        <DeleteTaskModal
+          task={taskBeingDeleted}
+          onClose={() => setTaskBeingDeleted(null)}
         />
         )}
     </DndContext>

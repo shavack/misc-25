@@ -1,6 +1,6 @@
 import { useState } from "react"
-import type { Task } from "../dto/types"
-import { usePatchTask } from "../hooks/useTasks"
+import type { Task } from "../../dto/types"
+import { usePatchTask } from "../../hooks/useTasks"
 
 export default function EditTaskModal({
   task,
