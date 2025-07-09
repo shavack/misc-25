@@ -14,12 +14,14 @@ import { useState } from "react"
 import {type Task} from '../dto/types'
 import EditTaskModal from './modals/EditTaskModal'
 import DeleteTaskModal from './modals/DeleteTaskModal'
+import { sortOptions, type SortOption } from '../constants/sortOptions'
 
 export default function Board() {
     const { data, isLoading, error } = useTasks()
     const [activeTask, setActiveTask] = useState<Task | null>(null)
     const [taskBeingEdited, setTaskBeingEdited] = useState<Task | null>(null)
     const [taskBeingDeleted, setTaskBeingDeleted] = useState<Task | null>(null)
+    const [sortOption, setSortOption] = useState<SortOption>('titleAsc')
 
     const sensors = useSensors(
       useSensor(PointerSensor, {
@@ -39,9 +41,24 @@ export default function Board() {
     if (isLoading) return <p>Loading...</p>
     if (error) return <p>Error loading tasks</p>
     const tasks = data ?? []
-    const notStartedTasks = tasks.filter((t) => t.state == 0 || t.state == null)
-    const pendingTasks = tasks.filter((t) => t.state == 1)
-    const completedTasks = tasks.filter((t) => t.state === 2)
+    const sortedTasks = [...tasks].sort((a, b) => {
+      switch (sortOption) {
+        case 'titleAsc':
+          return a.title.localeCompare(b.title)
+        case 'titleDesc':
+          return b.title.localeCompare(a.title)
+        case 'createdAt':
+          return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+        case 'dueDate':
+          return (a.dueDate ? new Date(a.dueDate).getTime() : Infinity) -
+                (b.dueDate ? new Date(b.dueDate).getTime() : Infinity)
+        default:
+          return 0
+      }
+    })
+    const notStartedTasks = sortedTasks.filter((t) => t.state == 0 || t.state == null)
+    const pendingTasks = sortedTasks.filter((t) => t.state == 1)
+    const completedTasks = sortedTasks.filter((t) => t.state === 2)
 
 
     return (
@@ -55,6 +72,19 @@ export default function Board() {
       onDragEnd={handleDragEnd}
       onDragCancel = {() => setActiveTask(null)}>
         <ThemeSelector />
+        <div className="mb-4">
+          <label className="mr-2 text-sm font-medium">Sort by:</label>
+          <select
+            value={sortOption}
+            onChange={(e) => setSortOption(e.target.value as SortOption)}
+            className="p-2 rounded border"
+          >
+            {sortOptions.map((opt) => (
+              <option key={opt.value} value={opt.value}>{opt.label}</option>
+            ))}
+          </select>
+        </div>
+
         <div className="flex gap-4 w-full px-4">
         <Column id="Backlog" title={`Backlog ${notStartedTasks.length}/${tasks.length}`} tasks={notStartedTasks} onEdit={(task) => setTaskBeingEdited(task)} onDelete = {(task) => setTaskBeingDeleted(task)}/>
         <Column id="In progress" title={`In progress ${pendingTasks.length}/${tasks.length}`} tasks={pendingTasks} onEdit={(task) => setTaskBeingEdited(task)} onDelete = {(task) => setTaskBeingDeleted(task)}/>
