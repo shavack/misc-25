@@ -28,3 +28,8 @@ export const createTask = async (task: Partial<Task>) => {
   const response = await axios.post(`http://localhost:5000/tasks/`, task)
   return response.data
 }
+
+export const deleteTask = async (id: number) => {
+  const response = await axios.delete(`http://localhost:5000/tasks/${id}`)
+  return response.data
+}

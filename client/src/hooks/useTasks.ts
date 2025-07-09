@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { getTasks, patchTask, createTask } from '../api/tasks'
+import { getTasks, patchTask, createTask, deleteTask } from '../api/tasks'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import type { Task } from '../dto/types'
 
@@ -30,3 +30,13 @@ export const useCreateTask = () =>  {
       }
     })
   }
+
+export const useDeleteTask = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (id: number) => deleteTask(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['tasks'] })
+    }
+  })
+} 

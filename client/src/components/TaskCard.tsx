@@ -2,6 +2,7 @@ import type { Task } from '../dto/types'
 import { useDraggable } from '@dnd-kit/core'
 import { useTheme } from '../contexts/ThemeContext'
 import { themes } from '../themes'
+import { useDeleteTask } from '../hooks/useTasks'
 
 export default function TaskCard({ task, onEdit }: { task: Task, onEdit?: (task: Task) => void }) {
   const { attributes, listeners, setNodeRef } = useDraggable({
@@ -10,6 +11,18 @@ export default function TaskCard({ task, onEdit }: { task: Task, onEdit?: (task:
   })
   const { theme } = useTheme()
   const style = themes[theme]
+  const mutation = useDeleteTask()
+  const deleteTask = (id: number) => {
+    mutation.mutate(
+      id,
+      { onSuccess: () => {
+        console.log(`Task with id ${id} deleted successfully`)
+      },
+      onError: (error) => {
+        console.error(`Error deleting task with id ${id}:`, error)
+      } }   
+    )
+  }
 
   return (
     <div
@@ -59,8 +72,16 @@ export default function TaskCard({ task, onEdit }: { task: Task, onEdit?: (task:
       <p className={`${style.text}`}>{task.description}</p>
       <button
         onClick={() => onEdit && onEdit(task)}
-        className="text-sm text-blue-400 hover:underline ml-auto flex justify-end mb-2">
+        className="text-sm text-blue-400 hover:underline ml-auto flex justify-end mb-2"
+        aria-label="Edit">
       ✏️ Edit
+      </button>
+      <button
+        onClick={() => deleteTask(task.id)}
+        className="text-sm text-red-500 hover:underline ml-auto flex justify-end mb-2"
+        aria-label="Delete"
+      >
+        ❌ Delete
       </button>
     </div>
   )

@@ -41,9 +41,6 @@ export default function Board() {
     const pendingTasks = tasks.filter((t) => t.state == 1)
     const completedTasks = tasks.filter((t) => t.state === 2)
 
-    const handleEditTask = (task: Task) => {
-      setTaskBeingEdited(task)
-    }
 
     return (
     <DndContext
