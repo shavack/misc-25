@@ -23,7 +23,8 @@ namespace TodoListApi.Migrations
                     CreatedAt = table.Column<DateOnly>(type: "TEXT", nullable: false),
                     CompletedAt = table.Column<DateOnly>(type: "TEXT", nullable: true),
                     DueDate = table.Column<DateOnly>(type: "TEXT", nullable: true),
-                    LastModifiedAt = table.Column<DateOnly>(type: "TEXT", nullable: true)
+                    LastModifiedAt = table.Column<DateOnly>(type: "TEXT", nullable: true),
+                    Tags = table.Column<string>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {

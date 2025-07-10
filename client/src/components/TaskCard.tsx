@@ -70,6 +70,13 @@ export default function TaskCard({ task, onEdit, onDelete }: { task: Task, onEdi
       >
         ❌ Delete
       </button>
+      <div className="flex flex-wrap gap-2 mt-2">
+        {task.tags.map((tag, index) => (
+          <span key={index} className={`px-2 py-1 rounded-full ${style.tag}`}>
+            {tag}
+          </span>
+        ))}
+        </div>   
     </div>
   )
 }

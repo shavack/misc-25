@@ -41,6 +41,9 @@ namespace TodoListApi.Migrations
                     b.Property<int?>("State")
                         .HasColumnType("INTEGER");
 
+                    b.PrimitiveCollection<string>("Tags")
+                        .HasColumnType("TEXT");
+
                     b.Property<string>("Title")
                         .HasColumnType("TEXT");
 

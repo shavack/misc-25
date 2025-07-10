@@ -11,6 +11,7 @@ namespace TodoListApi.Application.Dtos
         public TaskState State { get; set; }
         public string Description { get; set; }
         public DateOnly? CompletedAt { get; set; }
-        public DateOnly? DueDate { get; set; } 
+        public DateOnly? DueDate { get; set; }
+        public String[] Tags { get; set; } = Array.Empty<string>(); 
     }
 }

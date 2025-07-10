@@ -7,6 +7,7 @@ export interface Task {
   updatedAt: Date | null
   completedAt: Date | null
   dueDate: string | Date
+  tags: string[]
 }
 
 export interface PaginatedResponse<T> {

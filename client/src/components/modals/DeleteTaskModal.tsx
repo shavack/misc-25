@@ -24,7 +24,7 @@ export default function DeleteTaskModal({
         <h2 className="text-xl font-bold mb-4">Edit Task</h2>
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <text className="text-gray-700 dark:text-gray-300 mb-4">
-            Are you sure you want to delete the task "{task.title}"? This action cannot be undone.
+            Are you sure you want to delete the task <b>{task.title}</b>? This action cannot be undone.
           </text>
           <div className="flex justify-end gap-2">
             <button

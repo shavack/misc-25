@@ -181,6 +181,7 @@ public class TaskService : ITaskService
         existingTask.LastModifiedAt = DateOnly.FromDateTime(DateTime.Now);
         existingTask.CompletedAt = taskItem.State == TaskState.Completed ? DateOnly.FromDateTime(DateTime.Now) : null;
         existingTask.DueDate = taskItem.DueDate ?? existingTask.DueDate;
+        existingTask.Tags = taskItem.Tags.Length > 0 ? taskItem.Tags : existingTask.Tags;
         _context.Tasks.Update(existingTask);
         await _context.SaveChangesAsync();
     }

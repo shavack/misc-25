@@ -13,7 +13,7 @@ public class TaskQueryParams
     public string Title { get; set; }
     public DateOnly? FromDate { get; set; }
     public DateOnly? ToDate { get; set; }
-
     public DateOnly? DueDateFrom { get; set; }
     public DateOnly? DueDateTo { get; set; }
+    public String[] Tags { get; set; } = Array.Empty<string>();
 }

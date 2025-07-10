@@ -12,6 +12,7 @@ export default function EditTaskModal({
   const [title, setTitle] = useState(task.title)
   const [description, setDescription] = useState(task.description)
   const [dueDate, setDueDate] = useState(task.dueDate)
+  const [tags, setTags] = useState(task.tags.join(", "))
   const mutation = usePatchTask()
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -20,7 +21,8 @@ export default function EditTaskModal({
       { 
         id: task.id, 
         title, 
-        description, 
+        description,
+        tags: tags.split(",").map(tag => tag.trim()),
         dueDate: dueDate ? new Date(dueDate).toISOString().slice(0, 10) : "" 
       },
       { onSuccess: onClose }
@@ -55,6 +57,13 @@ export default function EditTaskModal({
                 : dueDate || ""
             }
             onChange={(e) => setDueDate(e.target.value)}
+          />
+          <input
+            className="p-2 rounded border"
+            type="text"
+            value={tags}
+            onChange={(e) => setTags(e.target.value)}
+            placeholder="Enter tags separated by commas"
           />
           <div className="flex justify-end gap-2">
             <button

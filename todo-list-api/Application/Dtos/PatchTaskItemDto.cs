@@ -11,4 +11,6 @@ public class PatchTaskItemDto
     public DateOnly? DueDate { get; set; } = null;
 
     public TaskState? State { get; set; } = null;
+
+    public String[] Tags { get; set; } = Array.Empty<string>();
 }

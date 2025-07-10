@@ -15,5 +15,7 @@ namespace TodoListApi.Domain
 
         public DateOnly? DueDate { get; set; }
         public DateOnly? LastModifiedAt { get; set; }
+
+        public String[] Tags { get; set; } = Array.Empty<string>();
     }
 }
