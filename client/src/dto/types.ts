@@ -24,3 +24,15 @@ export const taskStateMap: Record<TaskState, number> = {
   'In progress': 1,
   'Completed': 2
 }
+
+
+export type TaskFilters = {
+  title: string
+  description: string
+  status: TaskState | null
+  dueFrom: string
+  dueTo: string
+  createdFrom: string
+  createdTo: string
+  tags: string[]
+}

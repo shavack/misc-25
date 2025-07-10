@@ -11,7 +11,7 @@ import type { DragEndEvent, } from '@dnd-kit/core'
 import ThemeSelector from './ThemeSelector'
 import TaskCard from "./TaskCard"
 import { useState } from "react"
-import {type Task, type TaskState} from '../dto/types'
+import {type Task, type TaskFilters} from '../dto/types'
 import EditTaskModal from './modals/EditTaskModal'
 import DeleteTaskModal from './modals/DeleteTaskModal'
 import { sortOptions, type SortOption } from '../constants/sortOptions'
@@ -24,14 +24,18 @@ export default function Board() {
     const [taskBeingEdited, setTaskBeingEdited] = useState<Task | null>(null)
     const [taskBeingDeleted, setTaskBeingDeleted] = useState<Task | null>(null)
     const [sortOption, setSortOption] = useState<SortOption>('titleAsc')
-    const [titleFilter, setTitleFilter] = useState("")
-    const [descriptionFilter, setDescriptionFilter] = useState("")
-    const [statusFilter, setStatusFilter] = useState<TaskState | null>(null)
-    const [createdFrom, setCreatedFrom] = useState("")
-    const [createdTo, setCreatedTo] = useState("")
-    const [dueFrom, setDueFrom] = useState("")
-    const [dueTo, setDueTo] = useState("")
+    const [tagsInput, setTagsInput] = useState("")
 
+    const [filters, setFilters] = useState<TaskFilters>({
+      title: '',
+      description: '',
+      status: null,
+      dueFrom: '',
+      dueTo: '',
+      createdFrom: '',
+      createdTo: '',
+      tags: []
+    })
 
     const sensors = useSensors(
       useSensor(PointerSensor, {
@@ -53,22 +57,30 @@ export default function Board() {
     const tasks = data ?? []
 
     const filteredTasks = tasks.filter((task) => {
-      const matchesTitle = task.title.toLowerCase().includes(titleFilter.toLowerCase())
-      const matchesDescription = task.description && task.description.toLowerCase().includes(descriptionFilter.toLowerCase())
-      const matchesStatus = statusFilter === null || task.state === taskStateMap[statusFilter]
+      const matchesTitle = task.title.toLowerCase().includes(filters.title.toLowerCase())
+      const matchesDescription = task.description && task.description.toLowerCase().includes(filters.description.toLowerCase())
+      const matchesStatus = filters.status === null || task.state === taskStateMap[filters.status]
 
       const created = new Date(task.createdAt)
       const due = task.dueDate ? new Date(task.dueDate) : null
 
       const createdValid =
-        (!createdFrom || created >= new Date(createdFrom)) &&
-        (!createdTo || created <= new Date(createdTo))
+        (!filters.createdFrom || created >= new Date(filters.createdFrom)) &&
+        (!filters.createdTo || created <= new Date(filters.createdTo))
 
       const dueValid =
-        (!dueFrom || (due && due >= new Date(dueFrom))) &&
-        (!dueTo || (due && due <= new Date(dueTo)))
+        (!filters.dueFrom || (due && due >= new Date(filters.dueFrom))) &&
+        (!filters.dueTo || (due && due <= new Date(filters.dueTo)))
 
-      return matchesTitle && matchesDescription && matchesStatus && createdValid && dueValid
+      const tagsValid =
+        filters.tags.length === 0 ||
+        filters.tags.some(filterTag =>
+          task.tags.some(taskTag =>
+        taskTag.trim().toLowerCase().includes(filterTag.trim().toLowerCase())
+          )
+        )
+
+      return matchesTitle && matchesDescription && matchesStatus && createdValid && dueValid && tagsValid
     })
 
     const sortedTasks = [...filteredTasks].sort((a, b) => {
@@ -115,20 +127,10 @@ export default function Board() {
             </select>
         </div>
         <FilterTasksModal
-          titleFilter={titleFilter}
-          setTitleFilter={setTitleFilter}
-          descriptionFilter={descriptionFilter}
-          setDescriptionFilter={setDescriptionFilter}
-          statusFilter={statusFilter}
-          setStatusFilter={setStatusFilter}
-          setCreatedTo={setCreatedTo}
-          setCreatedFrom={setCreatedFrom}
-          createdFrom={createdFrom}
-          createdTo={createdTo}
-          dueFrom={dueFrom}
-          setDueFrom={setDueFrom}
-          dueTo={dueTo}
-          setDueTo={setDueTo}
+          filters={filters}
+          setFilters={setFilters}
+          tagsInput={tagsInput}
+          setTagsInput={setTagsInput}
         />
         <div className="flex gap-4 w-full px-4">
         <Column id="Backlog" title={`Backlog ${notStartedTasks.length}/${tasks.length}`} tasks={notStartedTasks} onEdit={(task) => setTaskBeingEdited(task)} onDelete = {(task) => setTaskBeingDeleted(task)}/>
