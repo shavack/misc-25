@@ -23,10 +23,12 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddEndpointsApiExplorer();
 // Add AutoMapper
 builder.Services.AddAutoMapper(typeof(TaskMappingProfile).Assembly);
+builder.Services.AddAutoMapper(typeof(ProjectMappingProfile).Assembly);
 // Add db context
 builder.Services.AddPersistence(builder.Configuration);
 //builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 // Add application services
+builder.Services.AddScoped<IProjectService, ProjectService>();
 builder.Services.AddScoped<ITaskService, TaskService>();
 builder.Services.AddScoped<IValidator<TaskItemDto>, TaskItemValidator>();
 builder.Services.AddScoped<IValidator<TaskQueryParams>, TaskQueryParamsValidator>();
@@ -55,6 +57,7 @@ app.UseMiddleware<ErrorHandlingMiddleware>();
 // Configure the HTTP request pipeline.
 app.MapTaskEndpoints();
 //app.AddErrorHandling();
+app.MapProjectEndpoints();
 
 app.UseAuthorization();
 

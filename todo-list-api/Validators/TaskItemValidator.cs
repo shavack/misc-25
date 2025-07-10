@@ -26,6 +26,14 @@ namespace TodoListApi.Application.Validators
             RuleFor(task => task.CompletedAt)
                 .Empty().When(task => task.State != TaskState.Completed)
                 .WithMessage("CompletedAt must be empty when the task is not completed.");
+
+            RuleFor(task => task.DueDate)
+                .Must(date => date == null || date >= DateOnly.FromDateTime(DateTime.Now))
+                .WithMessage("DueDate must be today or in the future.");
+
+            RuleFor(task => task.ProjectId)
+                .GreaterThanOrEqualTo(0).WithMessage("ProjectId must be greater than or equal to 0.")
+                .WithMessage("ProjectId cannot be negative.");
         }
     }
 }

@@ -11,7 +11,6 @@ public interface ITaskService
 {
     Task<PaginatedResultDto<TaskItem>> GetAllTasksAsync(TaskQueryParams taskQueryParams);
     Task<TaskItem> GetTaskByIdAsync(int id);
-
     Task SetCompleteAsync(int id);
     Task<TaskItem> AddTaskAsync(TaskItem taskItem);
 

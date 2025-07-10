@@ -12,6 +12,22 @@ namespace TodoListApi.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
+                name: "Projects",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    Name = table.Column<string>(type: "TEXT", nullable: true),
+                    Description = table.Column<string>(type: "TEXT", nullable: true),
+                    CreatedAt = table.Column<DateOnly>(type: "TEXT", nullable: false),
+                    LastModifiedAt = table.Column<DateOnly>(type: "TEXT", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Projects", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Tasks",
                 columns: table => new
                 {
@@ -24,7 +40,8 @@ namespace TodoListApi.Migrations
                     CompletedAt = table.Column<DateOnly>(type: "TEXT", nullable: true),
                     DueDate = table.Column<DateOnly>(type: "TEXT", nullable: true),
                     LastModifiedAt = table.Column<DateOnly>(type: "TEXT", nullable: true),
-                    Tags = table.Column<string>(type: "TEXT", nullable: true)
+                    Tags = table.Column<string>(type: "TEXT", nullable: true),
+                    ProjectId = table.Column<int>(type: "INTEGER", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -35,6 +52,9 @@ namespace TodoListApi.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "Projects");
+
             migrationBuilder.DropTable(
                 name: "Tasks");
         }

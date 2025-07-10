@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualBasic;
 using TodoListApi.Application.Dtos;
 using TodoListApi.Data;
 using TodoListApi.Domain;
@@ -14,6 +15,8 @@ namespace TodoListApi.Application.Services;
 public class TaskService : ITaskService
 {
     private readonly AppDbContext _context;
+
+    private readonly IProjectService _projectService;
 
     private readonly string[] _tags = new[]
     {
@@ -46,9 +49,10 @@ public class TaskService : ITaskService
         "Call a family member to catch up and stay connected."
     };
 
-    public TaskService(AppDbContext context)
+    public TaskService(AppDbContext context, IProjectService projectService)
     {
         _context = context;
+        _projectService = projectService;
     }
 
     public async Task<PaginatedResultDto<TaskItem>> GetAllTasksAsync(TaskQueryParams task)
@@ -125,6 +129,8 @@ public class TaskService : ITaskService
 
     public async Task<TaskItem> AddTaskAsync(TaskItem taskItem)
     {
+        if (taskItem.ProjectId == null || await _projectService.GetProjectByIdAsync(taskItem.ProjectId.Value) == null)
+            throw new KeyNotFoundException("Project not found");
         _context.Tasks.Add(taskItem);
         await _context.SaveChangesAsync();
         return taskItem;
@@ -137,18 +143,16 @@ public class TaskService : ITaskService
             throw new ArgumentException("Task ID mismatch");
         }
 
+        if (taskItem.ProjectId != null && await _projectService.GetProjectByIdAsync(taskItem.ProjectId.Value) == null)
+            throw new KeyNotFoundException("Project not found");
+
         _context.Entry(taskItem).State = EntityState.Modified;
         await _context.SaveChangesAsync();
     }
 
     public async Task DeleteTaskAsync(int id)
     {
-        var taskItem = await _context.Tasks.FindAsync(id);
-        if (taskItem == null)
-        {
-            throw new KeyNotFoundException("Task not found");
-        }
-
+        var taskItem = await _context.Tasks.FindAsync(id) ?? throw new KeyNotFoundException("Task not found");
         _context.Tasks.Remove(taskItem);
         await _context.SaveChangesAsync();
     }
@@ -270,6 +274,8 @@ public class TaskService : ITaskService
     public async Task<List<TaskItem>> PopulateDatabaseAsync(BulkAddTasksDto bulkAddTasksDto)
     {
         var tasks = new List<TaskItem>();
+        var projects = await _projectService.GetAllProjectsAsync() ?? throw new KeyNotFoundException("No projects found. Please create a project first.");
+
         for (var i = 0; i < bulkAddTasksDto.NumberOfTasks; i++)
         {
             var task = new TaskItem
@@ -292,6 +298,9 @@ public class TaskService : ITaskService
             {
                 task.Tags = Array.Empty<string>();
             }
+
+            task.ProjectId = new Random().Next(0, projects.Count());
+
             task.CreatedAt = DateOnly.FromDateTime(DateTime.Now);
             task.LastModifiedAt = DateOnly.FromDateTime(DateTime.Now);
             if (task.State == TaskState.Completed)
@@ -301,7 +310,7 @@ public class TaskService : ITaskService
             else
             {
                 task.CompletedAt = null;
-            }   
+            }
             tasks.Add(task);
         }
         _context.Tasks.AddRange(tasks);

@@ -13,5 +13,7 @@ namespace TodoListApi.Application.Dtos
         public DateOnly? CompletedAt { get; set; }
         public DateOnly? DueDate { get; set; }
         public String[] Tags { get; set; } = Array.Empty<string>(); 
+
+        public int ProjectId { get; set; } = 0;
     }
 }
