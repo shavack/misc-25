@@ -16,6 +16,7 @@ import EditTaskModal from './modals/EditTaskModal'
 import DeleteTaskModal from './modals/DeleteTaskModal'
 import { sortOptions, type SortOption } from '../constants/sortOptions'
 import { taskStateMap }  from '../dto/types'
+import FilterTasksModal from './modals/FilterTasksModal'
 
 export default function Board() {
     const { data, isLoading, error } = useTasks()
@@ -30,6 +31,7 @@ export default function Board() {
     const [createdTo, setCreatedTo] = useState("")
     const [dueFrom, setDueFrom] = useState("")
     const [dueTo, setDueTo] = useState("")
+
 
     const sensors = useSensors(
       useSensor(PointerSensor, {
@@ -101,94 +103,33 @@ export default function Board() {
       onDragCancel = {() => setActiveTask(null)}>
         <ThemeSelector />
         <div className="mb-4">
-          <label className="mr-2 text-sm font-medium">Sort by:</label>
-          <select
-            value={sortOption}
-            onChange={(e) => setSortOption(e.target.value as SortOption)}
-            className="p-2 rounded border"
-          >
-            {sortOptions.map((opt) => (
-              <option key={opt.value} value={opt.value}>{opt.label}</option>
-            ))}
-          </select>
-        </div>
-        <div className="grid grid-cols-4 gap-4 mb-6">
-
-          <div className="flex flex-col">
-            <label className="text-sm font-medium mb-1">Filter by title</label>
-            <input
-              type="text"
-              value={titleFilter}
-              onChange={(e) => setTitleFilter(e.target.value)}
-              className="p-2 rounded border"
-            />
-          </div>
-
-          <div className="flex flex-col">
-            <label className="text-sm font-medium mb-1">Filter by description</label>
-            <input
-              type="text"
-              value={descriptionFilter}
-              onChange={(e) => setDescriptionFilter(e.target.value)}
-              className="p-2 rounded border"
-            />
-          </div>
-
-          <div className="flex flex-col">
-            <label className="text-sm font-medium mb-1">Status</label>
+            <label className="mr-2 text-sm font-medium">Sort by:</label>
             <select
-              value={statusFilter ?? ""}
-              onChange={(e) => setStatusFilter(e.target.value === "" ? null : e.target.value as TaskState)}
-              className="p-2 rounded border"
+                value={sortOption}
+                onChange={(e) => setSortOption(e.target.value as SortOption)}
+                className="p-2 rounded border"
             >
-              <option value="">All statuses</option>
-              <option value="Pending">Not Started</option>
-              <option value="In progress">In Progress</option>
-              <option value="Completed">Completed</option>
+                {sortOptions.map((opt) => (
+                    <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
             </select>
-          </div>
-
-          <div className="flex flex-col">
-            <label className="text-sm font-medium mb-1">Created from</label>
-            <input
-              type="date"
-              value={createdFrom}
-              onChange={(e) => setCreatedFrom(e.target.value)}
-              className="p-2 rounded border"
-            />
-          </div>
-
-          <div className="flex flex-col">
-            <label className="text-sm font-medium mb-1">Created to</label>
-            <input
-              type="date"
-              value={createdTo}
-              onChange={(e) => setCreatedTo(e.target.value)}
-              className="p-2 rounded border"
-            />
-          </div>
-
-          <div className="flex flex-col">
-            <label className="text-sm font-medium mb-1">Due date from</label>
-            <input
-              type="date"
-              value={dueFrom}
-              onChange={(e) => setDueFrom(e.target.value)}
-              className="p-2 rounded border"
-            />
         </div>
-
-        <div className="flex flex-col">
-          <label className="text-sm font-medium mb-1">Due date to</label>
-          <input
-            type="date"
-            value={dueTo}
-            onChange={(e) => setDueTo(e.target.value)}
-            className="p-2 rounded border"
-          />
-        </div>
-        </div>
-
+        <FilterTasksModal
+          titleFilter={titleFilter}
+          setTitleFilter={setTitleFilter}
+          descriptionFilter={descriptionFilter}
+          setDescriptionFilter={setDescriptionFilter}
+          statusFilter={statusFilter}
+          setStatusFilter={setStatusFilter}
+          setCreatedTo={setCreatedTo}
+          setCreatedFrom={setCreatedFrom}
+          createdFrom={createdFrom}
+          createdTo={createdTo}
+          dueFrom={dueFrom}
+          setDueFrom={setDueFrom}
+          dueTo={dueTo}
+          setDueTo={setDueTo}
+        />
         <div className="flex gap-4 w-full px-4">
         <Column id="Backlog" title={`Backlog ${notStartedTasks.length}/${tasks.length}`} tasks={notStartedTasks} onEdit={(task) => setTaskBeingEdited(task)} onDelete = {(task) => setTaskBeingDeleted(task)}/>
         <Column id="In progress" title={`In progress ${pendingTasks.length}/${tasks.length}`} tasks={pendingTasks} onEdit={(task) => setTaskBeingEdited(task)} onDelete = {(task) => setTaskBeingDeleted(task)}/>
