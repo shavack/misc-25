@@ -122,6 +122,16 @@ public static class TaskEndpoints
             return Results.NoContent();
         });
 
+        tasks.MapPost("/populate-database", async (BulkAddTasksDto bulkAddTasksDto, ITaskService service) =>
+        {
+            if (bulkAddTasksDto.NumberOfTasks <= 0)
+            {
+                return Results.BadRequest("Number of tasks must be greater than zero.");
+            }
+            var createdTasks = await service.PopulateDatabaseAsync(bulkAddTasksDto);
+            return Results.Ok(createdTasks);
+        });
+
         app.MapGet("error", () =>
         {
             return Results.Problem("You did something wrong, boi");
@@ -132,6 +142,8 @@ public static class TaskEndpoints
             context.Response.Redirect("/swagger");
             return Task.CompletedTask;
         });
+
+
 
         return app;
     }

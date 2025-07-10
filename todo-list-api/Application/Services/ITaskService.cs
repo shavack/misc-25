@@ -28,4 +28,6 @@ public interface ITaskService
     Task<List<TaskItem>> GetOverdueTasksAsync(OverdueTasksDto overdueTasksDto);
 
     Task ToggleCompletionAsync(int id);
+
+    Task<List<TaskItem>> PopulateDatabaseAsync(BulkAddTasksDto bulkAddTasksDto);
 }

@@ -15,6 +15,37 @@ public class TaskService : ITaskService
 {
     private readonly AppDbContext _context;
 
+    private readonly string[] _tags = new[]
+    {
+        "work", "personal", "urgent", "low-priority", "high-priority", "home", "school", "health", "finance", "travel", "talarek", "miscellaneous"
+    };
+
+    private readonly string[] titles = new[]
+    {
+        "Complete project report", "Buy groceries", "Schedule doctor appointment", "Finish reading book", "Prepare for meeting",
+        "Clean the house", "Plan vacation", "Organize files", "Attend workshop", "Update resume", "Learn new programming language",
+        "Write blog post", "Exercise regularly", "Cook dinner", "Call family member"
+    };
+
+    private readonly string[] descriptions = new[]
+    {
+        "This task involves completing the project report by the end of the week.",
+        "Remember to buy groceries for the week, including fruits, vegetables, and snacks.",
+        "Schedule a doctor appointment for a routine check-up or any health concerns.",
+        "Finish reading the book that has been on your list for a while.",
+        "Prepare for the upcoming meeting by reviewing notes and gathering necessary documents.",
+        "Clean the house, focusing on areas that need attention like dusting and vacuuming.",
+        "Plan a vacation by researching destinations, booking flights, and accommodations.",
+        "Organize files on your computer or in physical form to improve efficiency.",
+        "Attend a workshop to learn new skills or enhance existing ones.",
+        "Update your resume with recent experiences and skills acquired.",
+        "Learn a new programming language to expand your skill set.",
+        "Write a blog post about a topic of interest or expertise.",
+        "Exercise regularly to maintain physical health and well-being.",
+        "Cook dinner using a new recipe or favorite dish.",
+        "Call a family member to catch up and stay connected."
+    };
+
     public TaskService(AppDbContext context)
     {
         _context = context;
@@ -209,7 +240,7 @@ public class TaskService : ITaskService
             .ToListAsync();
         return overdueTasks;
     }
-    
+
     public async Task ToggleCompletionAsync(int id)
     {
         var taskItem = await _context.Tasks.FindAsync(id);
@@ -234,5 +265,47 @@ public class TaskService : ITaskService
         }
         _context.Tasks.Update(taskItem);
         await _context.SaveChangesAsync();
+    }
+    
+    public async Task<List<TaskItem>> PopulateDatabaseAsync(BulkAddTasksDto bulkAddTasksDto)
+    {
+        var tasks = new List<TaskItem>();
+        for (var i = 0; i < bulkAddTasksDto.NumberOfTasks; i++)
+        {
+            var task = new TaskItem
+            {
+                Title = titles[new Random().Next(titles.Length)],
+                Description = descriptions[new Random().Next(descriptions.Length)],
+                State = bulkAddTasksDto.RandomizeStates ? (TaskState)new Random().Next(0, 3) : TaskState.NotStarted,
+                DueDate = bulkAddTasksDto.RandomizeDueDates ? DateOnly.FromDateTime(DateTime.Now.AddDays(new Random().Next(1, 30))) : null,
+            };
+
+            if (bulkAddTasksDto.RandomizeTags)
+            {
+                var randomTagsCount = new Random().Next(1, 4); // Randomly select 1 to 3 tags
+                task.Tags = Enumerable.Range(0, randomTagsCount)
+                    .Select(_ => _tags[new Random().Next(_tags.Length)])
+                    .Distinct()
+                    .ToArray();
+            }
+            else
+            {
+                task.Tags = Array.Empty<string>();
+            }
+            task.CreatedAt = DateOnly.FromDateTime(DateTime.Now);
+            task.LastModifiedAt = DateOnly.FromDateTime(DateTime.Now);
+            if (task.State == TaskState.Completed)
+            {
+                task.CompletedAt = DateOnly.FromDateTime(DateTime.Now);
+            }
+            else
+            {
+                task.CompletedAt = null;
+            }   
+            tasks.Add(task);
+        }
+        _context.Tasks.AddRange(tasks);
+        await _context.SaveChangesAsync();
+        return tasks;
     }
 }
