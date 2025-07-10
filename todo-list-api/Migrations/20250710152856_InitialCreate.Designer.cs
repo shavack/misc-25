@@ -11,7 +11,7 @@ using TodoListApi.Data;
 namespace TodoListApi.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250710144145_InitialCreate")]
+    [Migration("20250710152856_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />

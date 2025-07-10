@@ -8,6 +8,16 @@ export interface Task {
   completedAt: Date | null
   dueDate: string | Date
   tags: string[]
+  projectId: number
+}
+
+export interface Project {
+  id: number
+  name: string
+  description: string
+  createdAt: Date
+  updatedAt: Date | null
+  tasks: Task[]
 }
 
 export interface PaginatedResponse<T> {

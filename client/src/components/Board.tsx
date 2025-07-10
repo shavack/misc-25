@@ -7,6 +7,7 @@ import {
   useSensors } from '@dnd-kit/core'
 import Column from './Column'
 import { useTasks, usePatchTask } from '../hooks/useTasks'
+import { useProjects } from '../hooks/useProjects'
 import type { DragEndEvent, } from '@dnd-kit/core'
 import ThemeSelector from './ThemeSelector'
 import TaskCard from "./TaskCard"
@@ -19,12 +20,16 @@ import { taskStateMap }  from '../dto/types'
 import FilterTasksModal from './modals/FilterTasksModal'
 
 export default function Board() {
-    const { data, isLoading, error } = useTasks()
+    const { data : tasksData, isLoading, error } = useTasks()
+    const { data : projectsData } = useProjects()
     const [activeTask, setActiveTask] = useState<Task | null>(null)
     const [taskBeingEdited, setTaskBeingEdited] = useState<Task | null>(null)
     const [taskBeingDeleted, setTaskBeingDeleted] = useState<Task | null>(null)
     const [sortOption, setSortOption] = useState<SortOption>('titleAsc')
     const [tagsInput, setTagsInput] = useState("")
+    const [currentProjectID, setCurrentProjectID] = useState<number>(-1)
+    console.log("Current project ID:", currentProjectID)
+
 
     const [filters, setFilters] = useState<TaskFilters>({
       title: '',
@@ -54,9 +59,12 @@ export default function Board() {
 
     if (isLoading) return <p>Loading...</p>
     if (error) return <p>Error loading tasks</p>
-    const tasks = data ?? []
+    const tasks = tasksData ?? []
+    const projects = projectsData ?? []
 
-    const filteredTasks = tasks.filter((task) => {
+    const taskInCurrentProject = tasks.filter((task) => currentProjectID === -1 || task.projectId === currentProjectID)
+
+    const filteredTasks = taskInCurrentProject.filter((task) => {
       const matchesTitle = task.title.toLowerCase().includes(filters.title.toLowerCase())
       const matchesDescription = task.description && task.description.toLowerCase().includes(filters.description.toLowerCase())
       const matchesStatus = filters.status === null || task.state === taskStateMap[filters.status]
@@ -132,6 +140,14 @@ export default function Board() {
           tagsInput={tagsInput}
           setTagsInput={setTagsInput}
         />
+        <select>
+          <option value="-1" onClick={() => setCurrentProjectID(-1)}>All Projects</option>
+          {projects.map((project, index) => (
+            <option key={project.id} value={index} onClick={() => setCurrentProjectID(project.id)}>
+              {project.name}
+            </option>
+          ))}
+        </select>
         <div className="flex gap-4 w-full px-4">
         <Column id="Backlog" title={`Backlog ${notStartedTasks.length}/${tasks.length}`} tasks={notStartedTasks} onEdit={(task) => setTaskBeingEdited(task)} onDelete = {(task) => setTaskBeingDeleted(task)}/>
         <Column id="In progress" title={`In progress ${pendingTasks.length}/${tasks.length}`} tasks={pendingTasks} onEdit={(task) => setTaskBeingEdited(task)} onDelete = {(task) => setTaskBeingDeleted(task)}/>

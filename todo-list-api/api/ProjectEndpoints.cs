@@ -11,9 +11,9 @@ public static class ProjectEndpoints
     public static IEndpointRouteBuilder MapProjectEndpoints(this IEndpointRouteBuilder app)
     {
         var projects = app.MapGroup("/projects");
-        projects.MapGet("/", async (IProjectService service) =>
+        projects.MapGet("/", async (IProjectService service, [AsParameters] ProjectQueryParams projectQueryParams) =>
         {
-            var projects = await service.GetAllProjectsAsync();
+            var projects = await service.GetAllProjectsAsync(projectQueryParams);
             return projects is not null ? Results.Ok(projects) : Results.NotFound();
         });
 

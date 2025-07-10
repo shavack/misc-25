@@ -50,9 +50,29 @@ public class ProjectService : IProjectService
         return await _context.Projects.FindAsync(id);
     }
 
-    public async Task<IEnumerable<Project>> GetAllProjectsAsync()
+    public async Task<PaginatedResultDto<Project>> GetAllProjectsAsync(ProjectQueryParams projectQueryParams)
     {
-        return await _context.Projects.ToListAsync();
+        var page = projectQueryParams.Page;
+        var pageSize = projectQueryParams.PageSize; 
+        if (page is null or < 1) page = 1;
+        if (pageSize is null or < 1) pageSize = 10;
+
+        var query = _context.Projects.AsQueryable();
+
+        if (page.HasValue && pageSize.HasValue)
+        {
+            query = query.Skip((page.Value - 1) * pageSize.Value)
+                         .Take(pageSize.Value);
+        }
+        var resultPaginated = new PaginatedResultDto<Project>
+        {
+            Page = page.Value,
+            PageSize = page.Value,
+            TotalCount = await _context.Tasks.CountAsync(),
+            TotalPages = (int)Math.Ceiling((double)await _context.Tasks.CountAsync() / pageSize.Value),
+            Items = await query.ToListAsync(),
+        };
+        return resultPaginated;
     }
 
     public async Task UpdateProjectAsync(int id, Project project)
@@ -81,7 +101,7 @@ public class ProjectService : IProjectService
             {
                 Name = dto.RandomizeNames ? 
                     _names[Random.Shared.Next(_names.Length)] : 
-                    $"Project {i + 1}",
+                    _names[i% _names.Length],
                 Description = dto.RandomizeDescriptions ? 
                     _descriptions[Random.Shared.Next(_descriptions.Length)] : 
                     $"Description for Project {i + 1}"

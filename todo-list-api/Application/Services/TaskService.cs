@@ -274,7 +274,7 @@ public class TaskService : ITaskService
     public async Task<List<TaskItem>> PopulateDatabaseAsync(BulkAddTasksDto bulkAddTasksDto)
     {
         var tasks = new List<TaskItem>();
-        var projects = await _projectService.GetAllProjectsAsync() ?? throw new KeyNotFoundException("No projects found. Please create a project first.");
+        var projects = await _projectService.GetAllProjectsAsync(new ProjectQueryParams()) ?? throw new KeyNotFoundException("No projects found. Please create a project first.");
 
         for (var i = 0; i < bulkAddTasksDto.NumberOfTasks; i++)
         {
@@ -299,7 +299,7 @@ public class TaskService : ITaskService
                 task.Tags = Array.Empty<string>();
             }
 
-            task.ProjectId = new Random().Next(0, projects.Count());
+            task.ProjectId = new Random().Next(0, projects.Items.Count());
 
             task.CreatedAt = DateOnly.FromDateTime(DateTime.Now);
             task.LastModifiedAt = DateOnly.FromDateTime(DateTime.Now);
