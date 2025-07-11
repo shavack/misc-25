@@ -11,7 +11,15 @@ export const themes = {
     completedText: 'text-[#388e3c]',
     notStartedBackground: 'bg-[#e0e0e0]',
     notStartedText:'text-[#616161]',
-    tag: 'bg-[#d1c4e9] text-[#5e35b1]'
+    tag: 'bg-[#d1c4e9] text-[#5e35b1]',
+    button: 'bg-[#90caf9] hover:bg-[#64b5f6] text-white',
+    input: 'bg-white border border-gray-300 rounded p-2 focus:outline-none focus:ring-2 focus:ring-blue-500',
+    modalBackground: 'bg-white shadow-lg rounded-lg p-6',
+    modalText: 'text-gray-800',
+    modalButton: 'bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded',
+    modalInput: 'border border-gray-300 rounded p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500',
+    modalLabel: 'text-gray-700 font-medium mb-2',
+    modalCloseButton: 'absolute top-2 right-2 text-gray-500 hover:text-gray-700'
   },
   dark: {
     background: 'bg-[#18181b]',
@@ -25,7 +33,15 @@ export const themes = {
     completedText: 'text-[#052e16]',
     notStartedBackground: 'bg-[#52525b]',
     notStartedText:'text-[#d4d4d8]',
-    tag: 'bg-[#818cf8] text-[#1e3a8a]'
+    tag: 'bg-[#818cf8] text-[#1e3a8a]',
+    button: 'bg-[#3b82f6] hover:bg-[#2563eb] text-white',
+    input: 'bg-gray-800 border border-gray-600 rounded p-2 focus:outline-none focus:ring-2 focus:ring-blue-500',
+    modalBackground: 'bg-gray-800 shadow-lg rounded-lg p-6',
+    modalText: 'text-gray-200',
+    modalButton: 'bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded',
+    modalInput: 'border border-gray-600 rounded p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500',
+    modalLabel: 'text-gray-300 font-medium mb-2',
+    modalCloseButton: 'absolute top-2 right-2 text-gray-400 hover:text-gray-200'
   },
   light: {
     background: 'bg-[#f9fafb]',
@@ -39,7 +55,15 @@ export const themes = {
     completedText: 'text-[#166534]',
     notStartedBackground: 'bg-[#e5e7eb]',
     notStartedText:'text-[#374151]',
-    tag: 'bg-[#c7d2fe] text-[#1e3a8a]'
+    tag: 'bg-[#c7d2fe] text-[#1e3a8a]',
+    button: 'bg-[#3b82f6] hover:bg-[#2563eb] text-white',
+    input: 'bg-white border border-gray-300 rounded p-2 focus:outline-none focus:ring-2 focus:ring-blue-500',
+    modalBackground: 'bg-white shadow-lg rounded-lg p-6',
+    modalText: 'text-gray-800',
+    modalButton: 'bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded',
+    modalInput: 'border border-gray-300 rounded p-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500',
+    modalLabel: 'text-gray-700 font-medium mb-2',
+    modalCloseButton: 'absolute top-2 right-2 text-gray-500 hover:text-gray-700'
   },
 } as const
 

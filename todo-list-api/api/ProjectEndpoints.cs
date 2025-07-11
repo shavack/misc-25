@@ -1,3 +1,5 @@
+using System;
+using System.Security.Claims;
 using AutoMapper;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -11,16 +13,20 @@ public static class ProjectEndpoints
     public static IEndpointRouteBuilder MapProjectEndpoints(this IEndpointRouteBuilder app)
     {
         var projects = app.MapGroup("/projects");
-        projects.MapGet("/", async (IProjectService service, [AsParameters] ProjectQueryParams projectQueryParams) =>
+        projects.MapGet("/", async (IProjectService service, [AsParameters] ProjectQueryParams projectQueryParams, HttpContext httpContext) =>
         {
-            var projects = await service.GetAllProjectsAsync(projectQueryParams);
+             var userId = int.Parse(httpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value 
+                ?? throw new UnauthorizedAccessException("User not logged in"));
+            var projects = await service.GetAllProjectsAsync(projectQueryParams, userId);
             return projects is not null ? Results.Ok(projects) : Results.NotFound();
         });
 
-        projects.MapPost("/", async (IProjectService service, ProjectItemDto projectItemDto, IMapper mapper) =>
+        projects.MapPost("/", async (IProjectService service, ProjectItemDto projectItemDto, IMapper mapper, HttpContext httpContext) =>
         {  
+                var userId = int.Parse(httpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value 
+                ?? throw new UnauthorizedAccessException("User not logged in"));
                 var projectItem = mapper.Map<Project>(projectItemDto);
-                var created = await service.AddProjectAsync(projectItem);
+                var created = await service.AddProjectAsync(projectItem, userId);
                 return Results.Created($"/tasks/{created.Id}", created);
         });
 
@@ -47,14 +53,14 @@ public static class ProjectEndpoints
             return Results.NoContent();
         });
 
-        projects.MapPost("/populate-database", async (IProjectService service, BulkAddProjectsDto dto) =>
+        projects.MapPost("/generate", async (IProjectService service, int numberOfProjects) =>
         {
-            if (dto.NumberOfProjects <= 0)
+            if (numberOfProjects <= 0)
             {
                 return Results.BadRequest("Number of projects must be greater than zero.");
             }
 
-            var createdProjects = await service.PopulateDatabaseAsync(dto);
+            var createdProjects = await service.PopulateDatabaseAsync(numberOfProjects);
             return Results.Ok(createdProjects);
         });
 

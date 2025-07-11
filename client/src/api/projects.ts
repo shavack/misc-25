@@ -7,15 +7,19 @@ export const getProjects = async (): Promise<Project[]> => {
   const pageSize = 10
   let allItems: Project[] = []
   let totalPages = 1
-
-  do {
-    const res = await axios.get<PaginatedResponse<Project>>(
-      `${API_BASE_URL}/projects?page=${page}&pageSize=${pageSize}`
-    )
-    allItems = allItems.concat(res.data.items)
-    totalPages = res.data.totalPages
-    page++
-  } while (page <= totalPages)
+  try{
+    do {
+      const res = await axios.get<PaginatedResponse<Project>>(
+        `${API_BASE_URL}/projects?page=${page}&pageSize=${pageSize}`
+      )
+      allItems = allItems.concat(res.data.items)
+      totalPages = res.data.totalPages
+      page++
+    } while (page <= totalPages)
+  }
+  catch (error) {
+    throw new Error("Failed to fetch projects")
+  }
 
   return allItems
 }

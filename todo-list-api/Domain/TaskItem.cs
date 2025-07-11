@@ -18,6 +18,6 @@ namespace TodoListApi.Domain
 
         public string[] Tags { get; set; } = Array.Empty<string>();
 
-        public int? ProjectId { get; set; }
+        public int ProjectId { get; set; }
     }
 }

@@ -15,5 +15,5 @@ public class TaskQueryParams
     public DateOnly? ToDate { get; set; }
     public DateOnly? DueDateFrom { get; set; }
     public DateOnly? DueDateTo { get; set; }
-    public String[] Tags { get; set; } = Array.Empty<string>();
+    public string[] Tags { get; set; } = Array.Empty<string>();
 }

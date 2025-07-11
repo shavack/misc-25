@@ -20,7 +20,8 @@ namespace TodoListApi.Migrations
                     Name = table.Column<string>(type: "TEXT", nullable: true),
                     Description = table.Column<string>(type: "TEXT", nullable: true),
                     CreatedAt = table.Column<DateOnly>(type: "TEXT", nullable: false),
-                    LastModifiedAt = table.Column<DateOnly>(type: "TEXT", nullable: true)
+                    LastModifiedAt = table.Column<DateOnly>(type: "TEXT", nullable: true),
+                    UserId = table.Column<int>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -41,11 +42,27 @@ namespace TodoListApi.Migrations
                     DueDate = table.Column<DateOnly>(type: "TEXT", nullable: true),
                     LastModifiedAt = table.Column<DateOnly>(type: "TEXT", nullable: true),
                     Tags = table.Column<string>(type: "TEXT", nullable: true),
-                    ProjectId = table.Column<int>(type: "INTEGER", nullable: true)
+                    ProjectId = table.Column<int>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Tasks", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Users",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    Username = table.Column<string>(type: "TEXT", nullable: true),
+                    PasswordHash = table.Column<string>(type: "TEXT", nullable: true),
+                    CreatedAt = table.Column<DateOnly>(type: "TEXT", nullable: false),
+                    LastModifiedAt = table.Column<DateOnly>(type: "TEXT", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Users", x => x.Id);
                 });
         }
 
@@ -57,6 +74,9 @@ namespace TodoListApi.Migrations
 
             migrationBuilder.DropTable(
                 name: "Tasks");
+
+            migrationBuilder.DropTable(
+                name: "Users");
         }
     }
 }

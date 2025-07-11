@@ -8,16 +8,24 @@ using AutoMapper;
 using FluentValidation;
 using System.Threading.Tasks;
 using TodoListApi.Types;
+using System.Security.Claims;
+using System;
 public static class TaskEndpoints
 {
     public static IEndpointRouteBuilder MapTaskEndpoints(this IEndpointRouteBuilder app)
     {
         var tasks = app.MapGroup("/tasks");
-        tasks.MapGet("/", async (ITaskService service, [AsParameters] TaskQueryParams taskQueryParams, IValidator<TaskQueryParams> validator) =>
+        tasks.MapGet("/", async (ITaskService service, [AsParameters] TaskQueryParams taskQueryParams, IValidator<TaskQueryParams> validator, HttpContext httpContext) =>
         {
             validator.ValidateAndThrow(taskQueryParams);
             var taskItems = await service.GetAllTasksAsync(taskQueryParams);
             return Results.Ok(taskItems);
+        });
+
+        tasks.MapGet("/tasks-in-projects", async (ITaskService service, [AsParameters] TasksInProjectsQueryParams taskInProjectsQueryParams) =>
+        {
+            var tasks = await service.GetTasksInProjects(taskInProjectsQueryParams);
+            return Results.Ok(tasks);
         });
 
         tasks.MapGet("/{id}", async (int id, ITaskService service) =>
@@ -30,10 +38,9 @@ public static class TaskEndpoints
             return Results.Ok(taskItem);
         });
 
-        tasks.MapPost("/", async (TaskItemDto dto, ITaskService service, IMapper mapper, IValidator<TaskItemDto> validator) =>
+        tasks.MapPost("/", async (TaskItemDto dto, ITaskService service, IMapper mapper, IValidator<TaskItemDto> validator, HttpContext httpContext) =>
         {
             validator.ValidateAndThrow(dto);
-
             var taskItem = mapper.Map<TaskItem>(dto);
             var created = await service.AddTaskAsync(taskItem);
             return Results.Created($"/tasks/{created.Id}", created);
@@ -122,13 +129,13 @@ public static class TaskEndpoints
             return Results.NoContent();
         });
 
-        tasks.MapPost("/populate-database", async (BulkAddTasksDto bulkAddTasksDto, ITaskService service) =>
+        tasks.MapPost("/generate", async (int numberOfTasks, ITaskService service) =>
         {
-            if (bulkAddTasksDto.NumberOfTasks <= 0)
+            if (numberOfTasks <= 0)
             {
                 return Results.BadRequest("Number of tasks must be greater than zero.");
             }
-            var createdTasks = await service.PopulateDatabaseAsync(bulkAddTasksDto);
+            var createdTasks = await service.PopulateDatabaseAsync(numberOfTasks);
             return Results.Ok(createdTasks);
         });
 

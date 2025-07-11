@@ -1,45 +1,51 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
-using FluentValidation;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using TodoListApi.Application.Dtos;
 using TodoListApi.Data;
 using TodoListApi.Domain;
-using TodoListApi.Types;
 
 namespace TodoListApi.Application.Services;
 
 public class ProjectService : IProjectService
 {
     private readonly AppDbContext _context;
-
-    private readonly string[] _names = new[]{
+    private readonly string[] _names = [
         "Project Alpha",
         "Project Beta",
         "Project Gamma",
         "Project Delta",
-        "Project Epsilon"
-    };
+        "Project Epsilon",
+        "Project Zeta",
+        "Project Eta",
+        "Project Theta",
+        "Project Iota",
+        "Project Kappa",
+        "Project Lambda",
+        "Project Mu",
+    ];
 
-    private readonly string[] _descriptions = new[]{
+    private readonly string[] _descriptions = [
         "Very important project",
         "This project is crucial for our success",
         "A project that will change the world",
         "A project that will revolutionize the industry",
         "A project that will make us rich",
         "A project that will make us famous",
-    };  
+    ];
 
     public ProjectService(AppDbContext dbContext)
     {
         _context = dbContext;
     }
 
-    public async Task<Project> AddProjectAsync(Project project)
+    public async Task<Project> AddProjectAsync(Project project, int userId)
     {
+        project.UserId = userId; // Set the UserId from the authenticated user
         _context.Projects.Add(project);
         await _context.SaveChangesAsync();
         return project;
@@ -50,10 +56,10 @@ public class ProjectService : IProjectService
         return await _context.Projects.FindAsync(id);
     }
 
-    public async Task<PaginatedResultDto<Project>> GetAllProjectsAsync(ProjectQueryParams projectQueryParams)
+    public async Task<PaginatedResultDto<Project>> GetAllProjectsAsync(ProjectQueryParams projectQueryParams, int userId)
     {
         var page = projectQueryParams.Page;
-        var pageSize = projectQueryParams.PageSize; 
+        var pageSize = projectQueryParams.PageSize;
         if (page is null or < 1) page = 1;
         if (pageSize is null or < 1) pageSize = 10;
 
@@ -70,7 +76,7 @@ public class ProjectService : IProjectService
             PageSize = page.Value,
             TotalCount = await _context.Tasks.CountAsync(),
             TotalPages = (int)Math.Ceiling((double)await _context.Tasks.CountAsync() / pageSize.Value),
-            Items = await query.ToListAsync(),
+            Items = await query.Where(p => p.UserId == userId).ToListAsync(),
         };
         return resultPaginated;
     }
@@ -92,19 +98,19 @@ public class ProjectService : IProjectService
         await _context.SaveChangesAsync();
     }
     
-    public async Task<List<Project>> PopulateDatabaseAsync(BulkAddProjectsDto dto)
+    public async Task<List<Project>> PopulateDatabaseAsync(int numberOfProjects)
     {
         var projects = new List<Project>();
-        for (int i = 0; i < dto.NumberOfProjects; i++)
+        var users = await _context.Users.ToListAsync();
+        for (int i = 0; i < numberOfProjects; i++)
         {
             var project = new Project
             {
-                Name = dto.RandomizeNames ? 
-                    _names[Random.Shared.Next(_names.Length)] : 
-                    _names[i% _names.Length],
-                Description = dto.RandomizeDescriptions ? 
-                    _descriptions[Random.Shared.Next(_descriptions.Length)] : 
-                    $"Description for Project {i + 1}"
+                Name = _names[i % _names.Length],
+                Description = _descriptions[Random.Shared.Next(_descriptions.Length)],
+                CreatedAt = DateOnly.FromDateTime(DateTime.Now),
+                LastModifiedAt = null,
+                UserId = users[Random.Shared.Next(users.Count)].Id
             };
             projects.Add(project);
         }

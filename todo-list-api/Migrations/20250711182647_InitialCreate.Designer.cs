@@ -11,7 +11,7 @@ using TodoListApi.Data;
 namespace TodoListApi.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250710152856_InitialCreate")]
+    [Migration("20250711182647_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -37,6 +37,9 @@ namespace TodoListApi.Migrations
 
                     b.Property<string>("Name")
                         .HasColumnType("TEXT");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 
@@ -64,7 +67,7 @@ namespace TodoListApi.Migrations
                     b.Property<DateOnly?>("LastModifiedAt")
                         .HasColumnType("TEXT");
 
-                    b.Property<int?>("ProjectId")
+                    b.Property<int>("ProjectId")
                         .HasColumnType("INTEGER");
 
                     b.Property<int?>("State")
@@ -79,6 +82,29 @@ namespace TodoListApi.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Tasks");
+                });
+
+            modelBuilder.Entity("TodoListApi.Domain.User", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateOnly>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateOnly?>("LastModifiedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("PasswordHash")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Username")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Users");
                 });
 #pragma warning restore 612, 618
         }

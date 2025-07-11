@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { getTasks, patchTask, createTask, deleteTask } from '../api/tasks'
+import { getTasks, patchTask, createTask, deleteTask, getAllTasksInProjects } from '../api/tasks'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import type { Task } from '../dto/types'
 
@@ -40,3 +40,11 @@ export const useDeleteTask = () => {
     }
   })
 } 
+
+export const useTasksInProjects = (projectIds: number[]) => {
+  return useQuery({
+    queryKey: ['tasks-in-projects', projectIds],
+    queryFn: () => getAllTasksInProjects(projectIds),
+    enabled: projectIds.length > 0
+  })
+}

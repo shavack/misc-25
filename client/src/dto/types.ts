@@ -18,6 +18,7 @@ export interface Project {
   createdAt: Date
   updatedAt: Date | null
   tasks: Task[]
+  userId: number
 }
 
 export interface PaginatedResponse<T> {

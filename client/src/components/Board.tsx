@@ -6,7 +6,7 @@ import {
   useSensor,
   useSensors } from '@dnd-kit/core'
 import Column from './Column'
-import { useTasks, usePatchTask } from '../hooks/useTasks'
+import { usePatchTask, useTasksInProjects } from '../hooks/useTasks'
 import { useProjects } from '../hooks/useProjects'
 import type { DragEndEvent, } from '@dnd-kit/core'
 import ThemeSelector from './ThemeSelector'
@@ -20,16 +20,17 @@ import { taskStateMap }  from '../dto/types'
 import FilterTasksModal from './modals/FilterTasksModal'
 
 export default function Board() {
-    const { data : tasksData, isLoading, error } = useTasks()
-    const { data : projectsData } = useProjects()
+    const { data: projects, isLoading: loadingProjects } = useProjects()
+    const projectIds = projects?.map(p => p.id) ?? []
+    const { data: tasks, isLoading: loadingTasks } = useTasksInProjects(projectIds)
+
+    
     const [activeTask, setActiveTask] = useState<Task | null>(null)
     const [taskBeingEdited, setTaskBeingEdited] = useState<Task | null>(null)
     const [taskBeingDeleted, setTaskBeingDeleted] = useState<Task | null>(null)
     const [sortOption, setSortOption] = useState<SortOption>('titleAsc')
     const [tagsInput, setTagsInput] = useState("")
     const [currentProjectID, setCurrentProjectID] = useState<number>(-1)
-    console.log("Current project ID:", currentProjectID)
-
 
     const [filters, setFilters] = useState<TaskFilters>({
       title: '',
@@ -57,11 +58,11 @@ export default function Board() {
         mutation.mutate({ id: active.id as number, state: newState })
     }
 
-    if (isLoading) return <p>Loading...</p>
-    if (error) return <p>Error loading tasks</p>
-    const tasks = tasksData ?? []
-    const projects = projectsData ?? []
+    if (loadingProjects || loadingTasks) return <p>Loading...</p>
+    if (!projects || !tasks) return <p>No data available</p>
+    //if (error) return <p>Error loading tasks</p>
 
+    console.log("Tasks:", tasks)
     const taskInCurrentProject = tasks.filter((task) => currentProjectID === -1 || task.projectId === currentProjectID)
 
     const filteredTasks = taskInCurrentProject.filter((task) => {
@@ -140,18 +141,22 @@ export default function Board() {
           tagsInput={tagsInput}
           setTagsInput={setTagsInput}
         />
-        <select>
-          <option value="-1" onClick={() => setCurrentProjectID(-1)}>All Projects</option>
-          {projects.map((project, index) => (
-            <option key={project.id} value={index} onClick={() => setCurrentProjectID(project.id)}>
+        <select
+          value={currentProjectID}
+          onChange={(e) => setCurrentProjectID(Number(e.target.value))}
+          className="p-2 border rounded mb-4"
+        >
+          <option value={-1}>All Projects</option>
+          {projects.map((project) => (
+            <option key={project.id} value={project.id}>
               {project.name}
             </option>
           ))}
         </select>
         <div className="flex gap-4 w-full px-4">
-        <Column id="Backlog" title={`Backlog ${notStartedTasks.length}/${tasks.length}`} tasks={notStartedTasks} onEdit={(task) => setTaskBeingEdited(task)} onDelete = {(task) => setTaskBeingDeleted(task)}/>
-        <Column id="In progress" title={`In progress ${pendingTasks.length}/${tasks.length}`} tasks={pendingTasks} onEdit={(task) => setTaskBeingEdited(task)} onDelete = {(task) => setTaskBeingDeleted(task)}/>
-        <Column id="Completed" title={`Completed ${completedTasks.length}/${tasks.length}`} tasks={completedTasks} onEdit={(task) => setTaskBeingEdited(task)} onDelete = {(task) => setTaskBeingDeleted(task)}/>
+        <Column id="Backlog" title={`Backlog ${notStartedTasks.length}/${(tasks?.length ?? 0)}`} tasks={notStartedTasks} onEdit={(task) => setTaskBeingEdited(task)} onDelete = {(task) => setTaskBeingDeleted(task)}/>
+        <Column id="In progress" title={`In progress ${pendingTasks.length}/${(tasks?.length ?? 0)}`} tasks={pendingTasks} onEdit={(task) => setTaskBeingEdited(task)} onDelete = {(task) => setTaskBeingDeleted(task)}/>
+        <Column id="Completed" title={`Completed ${completedTasks.length}/${(tasks?.length ?? 0)}`} tasks={completedTasks} onEdit={(task) => setTaskBeingEdited(task)} onDelete = {(task) => setTaskBeingDeleted(task)}/>
         </div>
         <DragOverlay>
           {activeTask ? <TaskCard task={activeTask} /> : null}

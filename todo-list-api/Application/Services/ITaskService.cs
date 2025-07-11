@@ -10,6 +10,7 @@ namespace TodoListApi.Application.Services;
 public interface ITaskService
 {
     Task<PaginatedResultDto<TaskItem>> GetAllTasksAsync(TaskQueryParams taskQueryParams);
+    Task<PaginatedResultDto<TaskItem>> GetTasksInProjects(TasksInProjectsQueryParams taskInProjectsQueryParams);
     Task<TaskItem> GetTaskByIdAsync(int id);
     Task SetCompleteAsync(int id);
     Task<TaskItem> AddTaskAsync(TaskItem taskItem);
@@ -28,5 +29,5 @@ public interface ITaskService
 
     Task ToggleCompletionAsync(int id);
 
-    Task<List<TaskItem>> PopulateDatabaseAsync(BulkAddTasksDto bulkAddTasksDto);
+    Task<List<TaskItem>> PopulateDatabaseAsync(int numberOfTasks);
 }

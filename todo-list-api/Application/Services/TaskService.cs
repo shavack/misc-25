@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using FluentValidation;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.VisualBasic;
 using TodoListApi.Application.Dtos;
 using TodoListApi.Data;
 using TodoListApi.Domain;
@@ -15,6 +15,7 @@ namespace TodoListApi.Application.Services;
 public class TaskService : ITaskService
 {
     private readonly AppDbContext _context;
+    private readonly IHttpContextAccessor _httpContextAccessor;
 
     private readonly IProjectService _projectService;
 
@@ -49,8 +50,9 @@ public class TaskService : ITaskService
         "Call a family member to catch up and stay connected."
     };
 
-    public TaskService(AppDbContext context, IProjectService projectService)
+    public TaskService(AppDbContext context, IProjectService projectService, IHttpContextAccessor httpContextAccessor)
     {
+        _httpContextAccessor = httpContextAccessor;
         _context = context;
         _projectService = projectService;
     }
@@ -129,7 +131,7 @@ public class TaskService : ITaskService
 
     public async Task<TaskItem> AddTaskAsync(TaskItem taskItem)
     {
-        if (taskItem.ProjectId == null || await _projectService.GetProjectByIdAsync(taskItem.ProjectId.Value) == null)
+        if (await _projectService.GetProjectByIdAsync(taskItem.ProjectId) == null)
             throw new KeyNotFoundException("Project not found");
         _context.Tasks.Add(taskItem);
         await _context.SaveChangesAsync();
@@ -143,7 +145,7 @@ public class TaskService : ITaskService
             throw new ArgumentException("Task ID mismatch");
         }
 
-        if (taskItem.ProjectId != null && await _projectService.GetProjectByIdAsync(taskItem.ProjectId.Value) == null)
+        if (await _projectService.GetProjectByIdAsync(taskItem.ProjectId) == null)
             throw new KeyNotFoundException("Project not found");
 
         _context.Entry(taskItem).State = EntityState.Modified;
@@ -270,46 +272,34 @@ public class TaskService : ITaskService
         _context.Tasks.Update(taskItem);
         await _context.SaveChangesAsync();
     }
-    
-    public async Task<List<TaskItem>> PopulateDatabaseAsync(BulkAddTasksDto bulkAddTasksDto)
+
+    public async Task<List<TaskItem>> PopulateDatabaseAsync(int numberOfTasks)
     {
         var tasks = new List<TaskItem>();
-        var projects = await _projectService.GetAllProjectsAsync(new ProjectQueryParams()) ?? throw new KeyNotFoundException("No projects found. Please create a project first.");
+        var projects = await _context.Projects.ToListAsync();
+        var users = await _context.Users.ToListAsync();
 
-        for (var i = 0; i < bulkAddTasksDto.NumberOfTasks; i++)
+        for (var i = 0; i < numberOfTasks; i++)
         {
             var task = new TaskItem
             {
                 Title = titles[new Random().Next(titles.Length)],
                 Description = descriptions[new Random().Next(descriptions.Length)],
-                State = bulkAddTasksDto.RandomizeStates ? (TaskState)new Random().Next(0, 3) : TaskState.NotStarted,
-                DueDate = bulkAddTasksDto.RandomizeDueDates ? DateOnly.FromDateTime(DateTime.Now.AddDays(new Random().Next(1, 30))) : null,
+                State = (TaskState)new Random().Next(0, 3),
+                DueDate = DateOnly.FromDateTime(DateTime.Now.AddDays(new Random().Next(1, 30))),
+                Tags = Enumerable.Range(0, new Random().Next(1, 4))
+                        .Select(_ => _tags[new Random().Next(_tags.Length)])
+                        .Distinct()
+                        .ToArray(),
+                ProjectId = new Random().Next(0, projects.Count()),
+                CreatedAt = DateOnly.FromDateTime(DateTime.Now),
+                LastModifiedAt = DateOnly.FromDateTime(DateTime.Now),
+                CompletedAt = null
             };
 
-            if (bulkAddTasksDto.RandomizeTags)
-            {
-                var randomTagsCount = new Random().Next(1, 4); // Randomly select 1 to 3 tags
-                task.Tags = Enumerable.Range(0, randomTagsCount)
-                    .Select(_ => _tags[new Random().Next(_tags.Length)])
-                    .Distinct()
-                    .ToArray();
-            }
-            else
-            {
-                task.Tags = Array.Empty<string>();
-            }
-
-            task.ProjectId = new Random().Next(0, projects.Items.Count());
-
-            task.CreatedAt = DateOnly.FromDateTime(DateTime.Now);
-            task.LastModifiedAt = DateOnly.FromDateTime(DateTime.Now);
             if (task.State == TaskState.Completed)
             {
                 task.CompletedAt = DateOnly.FromDateTime(DateTime.Now);
-            }
-            else
-            {
-                task.CompletedAt = null;
             }
             tasks.Add(task);
         }
@@ -317,4 +307,32 @@ public class TaskService : ITaskService
         await _context.SaveChangesAsync();
         return tasks;
     }
+
+    public async Task<PaginatedResultDto<TaskItem>> GetTasksInProjects(TasksInProjectsQueryParams tasksInProjectsQueryParams)
+    {
+        var page = tasksInProjectsQueryParams.Page;
+        var pageSize = tasksInProjectsQueryParams.PageSize;
+        if (page is null or < 1) page = 1;
+        if (pageSize is null or < 1) pageSize = 10;
+
+        var query = _context.Tasks.AsQueryable();
+        query = query.Where(t => tasksInProjectsQueryParams.ProjectIds.Contains(t.ProjectId));
+        
+        if (page.HasValue && pageSize.HasValue)
+        {
+            query = query.Skip((page.Value - 1) * pageSize.Value)
+                         .Take(pageSize.Value);
+        }
+        
+        var resultPaginated = new PaginatedResultDto<TaskItem>
+        {
+            Page = page.Value,
+            PageSize = pageSize.Value,
+            TotalCount = await query.CountAsync(),
+            TotalPages = (int)Math.Ceiling((double)await query.CountAsync() / pageSize.Value),
+            Items = await query.ToListAsync(),
+        };
+        return resultPaginated;
+    }
+
 }

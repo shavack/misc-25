@@ -1,8 +1,10 @@
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using TodoListApi.Application.Dtos;
 using TodoListApi.Application.Services;
@@ -22,7 +24,7 @@ namespace TodoListApi.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<PaginatedResultDto<TaskItem>>> GetTasks([AsParameters] TaskQueryParams taskQueryParams, IValidator<TaskQueryParams> validator)
+        public async Task<ActionResult<PaginatedResultDto<TaskItem>>> GetTasks([AsParameters] TaskQueryParams taskQueryParams, IValidator<TaskQueryParams> validator, HttpContext httpContext)
         {
             validator.ValidateAndThrow(taskQueryParams);
             var tasks = await _taskService.GetAllTasksAsync(taskQueryParams);
@@ -55,7 +57,6 @@ namespace TodoListApi.Controllers
         public async Task<ActionResult<TaskItem>> AddTask(TaskItem taskItem)
         {
             await _taskService.AddTaskAsync(taskItem);
-
             return CreatedAtAction(nameof(GetTaskById), new { id = taskItem.Id }, taskItem);
         }
 

@@ -7,10 +7,10 @@ namespace TodoListApi.Application.Services;
 
 public interface IProjectService
 {
-    Task<Project> AddProjectAsync(Project project);
+    Task<Project> AddProjectAsync(Project project, int userId);
     Task<Project> GetProjectByIdAsync(int id);
-    Task<PaginatedResultDto<Project>> GetAllProjectsAsync(ProjectQueryParams projectQueryParams);
+    Task<PaginatedResultDto<Project>> GetAllProjectsAsync(ProjectQueryParams projectQueryParams, int userId);
     Task UpdateProjectAsync(int id, Project project);
     Task DeleteProjectAsync(int id);
-    Task<List<Project>> PopulateDatabaseAsync(BulkAddProjectsDto dto);
+    Task<List<Project>> PopulateDatabaseAsync(int numberOfProjects);
 }
