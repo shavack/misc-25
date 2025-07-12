@@ -2,6 +2,8 @@ import { useState } from "react"
 import { useCreateTask } from "../hooks/useTasks"
 import { useTheme } from '../contexts/ThemeContext'
 import { themes } from '../themes'
+import { useProjectContext } from "../contexts/ProjectContext"
+import { AxiosError } from "axios"
 
 export default function AddTaskForm()
 {
@@ -11,16 +13,31 @@ export default function AddTaskForm()
     const mutation = useCreateTask()
     const { theme, setTheme } = useTheme()
     const currentTheme = themes[theme];
+    const { currentProjectID, setCurrentProjectID } = useProjectContext()
+    const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault()
+        if(currentProjectID === -1) {
+            setErrorMessage("Please select a project to add a task to")
+            return
+        }
         mutation.mutate(
-            { title, description, dueDate },
+            { title, description, dueDate, projectId: currentProjectID},
             {
                 onSuccess: () => {
                 setTitle("")
                 setDueDate("")
                 setDescription("")
+                setErrorMessage(null)
+                },
+                onError: (error) => {
+                    const axiosError = error as AxiosError
+                    const data = axiosError.response?.data;
+                    const errorMsg = Array.isArray(data) && data[0]?.errorMessage
+                        ? data[0].errorMessage
+                        : "Unknown error";
+                    setErrorMessage(`Failed to create a task. Error: ${errorMsg}`)                
                 }
             }
         )
@@ -72,7 +89,12 @@ export default function AddTaskForm()
         >
             Add Task
         </button>
-    </div>  
+    </div> 
+        {errorMessage && (
+        <div className={`text-red-500 flex flex-col ${currentTheme.background}`}>
+          {errorMessage}
+        </div>
+      )}
     </form>
   )
 }

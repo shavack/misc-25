@@ -4,6 +4,7 @@ import { useTheme } from "../contexts/ThemeContext"
 import { themes } from '../themes'
 import { useAuth } from '../contexts/AuthContext'
 import LoginForm from '../components/LoginForm'
+import { ProjectProvider } from '../contexts/ProjectContext'
 
 export default function TaskList() {
   const { theme } = useTheme()
@@ -14,6 +15,7 @@ export default function TaskList() {
     return <LoginForm />
   }
   return (
+    <ProjectProvider>
     <div className= {`min-h-screen ${currentTheme.background}`}>
       <header className={`p-4 text-2xl font-bold ${currentTheme.text}`}>Task Manager</header>
       <main className="p-4">
@@ -23,10 +25,11 @@ export default function TaskList() {
         >
           Logout
         </button>
-        <h2 className={`text-xl font-semibold mb-4 ${currentTheme.text}`}>Your Tasks</h2>
+        <h2 className={`text-xl font-semibold mb-4 ${currentTheme.text}`}>Add tasks</h2>
         <AddTaskForm />
         <Board/>
       </main>
     </div>
+    </ProjectProvider>
   )
 }

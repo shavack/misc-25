@@ -18,19 +18,18 @@ import DeleteTaskModal from './modals/DeleteTaskModal'
 import { sortOptions, type SortOption } from '../constants/sortOptions'
 import { taskStateMap }  from '../dto/types'
 import FilterTasksModal from './modals/FilterTasksModal'
+import { useProjectContext } from '../contexts/ProjectContext'
 
 export default function Board() {
     const { data: projects, isLoading: loadingProjects } = useProjects()
     const projectIds = projects?.map(p => p.id) ?? []
-    const { data: tasks, isLoading: loadingTasks } = useTasksInProjects(projectIds)
-
-    
+    const { data: tasks, isLoading: loadingTasks } = useTasksInProjects(projectIds)    
     const [activeTask, setActiveTask] = useState<Task | null>(null)
     const [taskBeingEdited, setTaskBeingEdited] = useState<Task | null>(null)
     const [taskBeingDeleted, setTaskBeingDeleted] = useState<Task | null>(null)
     const [sortOption, setSortOption] = useState<SortOption>('titleAsc')
     const [tagsInput, setTagsInput] = useState("")
-    const [currentProjectID, setCurrentProjectID] = useState<number>(-1)
+    const { currentProjectID, setCurrentProjectID } = useProjectContext()
 
     const [filters, setFilters] = useState<TaskFilters>({
       title: '',
@@ -121,7 +120,9 @@ export default function Board() {
     }} 
       onDragEnd={handleDragEnd}
       onDragCancel = {() => setActiveTask(null)}>
+        <h2 className={`text-xl font-semibold mb-4`}>Change theme</h2>
         <ThemeSelector />
+        <h2 className={`text-xl font-semibold mb-4`}>Sort tasks</h2>
         <div className="mb-4">
             <label className="mr-2 text-sm font-medium">Sort by:</label>
             <select
@@ -134,12 +135,14 @@ export default function Board() {
                 ))}
             </select>
         </div>
+        <h2 className={`text-xl font-semibold mb-4`}>Filter tasks</h2>
         <FilterTasksModal
           filters={filters}
           setFilters={setFilters}
           tagsInput={tagsInput}
           setTagsInput={setTagsInput}
         />
+        <h2 className={`text-xl font-semibold mb-4`}>Choose project</h2>
         <select
           value={currentProjectID}
           onChange={(e) => setCurrentProjectID(Number(e.target.value))}
@@ -152,6 +155,7 @@ export default function Board() {
             </option>
           ))}
         </select>
+        <h2 className={`text-xl font-semibold mb-4`}>Your taskboard</h2>
         <div className="flex gap-4 w-full px-4">
         <Column id="Backlog" title={`Backlog ${notStartedTasks.length}/${(tasks?.length ?? 0)}`} tasks={notStartedTasks} onEdit={(task) => setTaskBeingEdited(task)} onDelete = {(task) => setTaskBeingDeleted(task)}/>
         <Column id="In progress" title={`In progress ${pendingTasks.length}/${(tasks?.length ?? 0)}`} tasks={pendingTasks} onEdit={(task) => setTaskBeingEdited(task)} onDelete = {(task) => setTaskBeingDeleted(task)}/>
