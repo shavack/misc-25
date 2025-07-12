@@ -42,7 +42,6 @@ export default function Board() {
       createdTo: '',
       tags: []
     })
-
     const sensors = useSensors(
       useSensor(PointerSensor, {
         activationConstraint: { distance: 5 }
@@ -54,7 +53,7 @@ export default function Board() {
         const { active, over } = event
         if (!over || active.id === over.id) return
 
-        const newState = mapColumnIdToTaskState(String(over.id)) // np. 'backlog' => 0
+        const newState = mapColumnIdToTaskState(String(over.id))
         mutation.mutate({ id: active.id as number, state: newState })
     }
 
@@ -62,7 +61,7 @@ export default function Board() {
     if (!projects || !tasks) return <p>No data available</p>
     //if (error) return <p>Error loading tasks</p>
 
-    console.log("Tasks:", tasks)
+    //console.log("Tasks:", tasks)
     const taskInCurrentProject = tasks.filter((task) => currentProjectID === -1 || task.projectId === currentProjectID)
 
     const filteredTasks = taskInCurrentProject.filter((task) => {
@@ -85,7 +84,7 @@ export default function Board() {
         filters.tags.length === 0 ||
         filters.tags.some(filterTag =>
           task.tags.some(taskTag =>
-        taskTag.trim().toLowerCase().includes(filterTag.trim().toLowerCase())
+              taskTag.trim().toLowerCase().includes(filterTag.trim().toLowerCase())
           )
         )
 
@@ -179,13 +178,13 @@ export default function Board() {
 
 const mapColumnIdToTaskState = (id: string): number => {
   switch (id) {
-    case 'Backlog':
-      return 0 // Not started
+    case 'Pending':
+      return 0
     case 'In progress':
-      return 1 // In progress
+      return 1
     case 'Completed':
-      return 2 // Completed
+      return 2 
     default:
-      return 0 // Unknown state
+      return 0
   }
 }

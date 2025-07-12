@@ -41,7 +41,7 @@ export default function TaskCard({ task, onEdit, onDelete }: { task: Task, onEdi
           {(() => {
             switch (task.state) {
               case 0:
-                return 'Not started'
+                return 'Pending'
               case 1:
                 return 'In progress'
               case 2:

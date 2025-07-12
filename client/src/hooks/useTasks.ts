@@ -16,7 +16,7 @@ export const usePatchTask = () => {
   return useMutation({
     mutationFn: patchTask,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['tasks'] })
+      queryClient.invalidateQueries({ queryKey: ['tasks-in-projects'] })
     },
   })
 }
@@ -26,7 +26,7 @@ export const useCreateTask = () =>  {
   return useMutation({
       mutationFn: createTask,
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ['tasks'] })
+        queryClient.invalidateQueries({ queryKey: ['tasks-in-projects'] })
       }
     })
   }
@@ -36,7 +36,7 @@ export const useDeleteTask = () => {
   return useMutation({
     mutationFn: (id: number) => deleteTask(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['tasks'] })
+      queryClient.invalidateQueries({ queryKey: ['tasks-in-projects'] })
     }
   })
 } 

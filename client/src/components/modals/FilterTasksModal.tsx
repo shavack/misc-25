@@ -48,7 +48,7 @@ export default function FilterTasksModal({ filters, setFilters, tagsInput, setTa
             className="p-2 rounded border"
             >
             <option value="">All statuses</option>
-            <option value="Not started">Not Started</option>
+            <option value="Pending">Pending</option>
             <option value="In progress">In Progress</option>
             <option value="Completed">Completed</option>
             </select>
